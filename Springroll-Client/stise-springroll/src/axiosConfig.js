@@ -5,6 +5,6 @@
 import axios from 'axios';
 
 export default axios.create({
-    baseURL: 'https://9c96-103-106-239-104.ap.ngrok.io',
+    baseURL: '?', //<--- todo, should be the base url for our website, but wouldnt that be localhost? kekw
     headers: { "ngrok-skip-browser-warning": "true" }
 });
