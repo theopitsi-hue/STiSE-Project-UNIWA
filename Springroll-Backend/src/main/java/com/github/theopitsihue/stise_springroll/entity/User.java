@@ -1,7 +1,6 @@
 package com.github.theopitsihue.stise_springroll.entity;
 
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,4 +58,16 @@ public class User {
             nullable = false //makes the field impossible to set to a null value.
     )
     private String emailAddress;
+
+    @Column(
+            name="privilege",
+            nullable = false
+    )
+    private Role privilege;
+
+    public enum Role{
+        CLIENT,
+        SHOP_OWNER,
+        ADMIN
+    }
 }

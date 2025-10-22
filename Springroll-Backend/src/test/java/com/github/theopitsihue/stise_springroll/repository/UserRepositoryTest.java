@@ -19,8 +19,8 @@ class UserRepositoryTest {
 
     @Test
     public void saveUser() {
-        User user = User.builder().emailAddress("test@gmail.com").username("testboy").password("123123123").build();
-        User user1 = User.builder().emailAddress("mpampoulina@gmail.com").username("kokobina").password("kaloskodikos").build();
+        User user = User.builder().emailAddress("test@gmail.com").username("testboy").password("123123123").privilege(User.Role.CLIENT).build();
+        User user1 = User.builder().emailAddress("mpampoulina@gmail.com").username("kokobina").password("kaloskodikos").privilege(User.Role.ADMIN).build();
 
         ArrayList<User> users = new ArrayList<>();
         users.add(user);
