@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: springroll-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: springroll_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: springroll123
+    ports:
+      - "3312:3306"
+    volumes:
+      - springroll-mysql-data:/var/lib/mysql
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+volumes:
+  springroll-mysql-data:
+    driver: local
