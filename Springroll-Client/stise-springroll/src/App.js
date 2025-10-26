@@ -4,19 +4,23 @@ import api from './api/axiosConfig';
 import { useState, useEffect } from 'react';
 
 function App() {
-  // const [tst, setTest] = useState();
+  const [users, setUser] = useState();
 
-  // const getTest = async () => {
-  //   try {
-  //     const response = await api.get("/root")
-  //     setTest(response.data);
-  //     console.log(response.data);
+  useEffect(() => {
+    console.log("Hewowoowoww");
+  })
 
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
+  const getTest = async () => {
+    try {
+      const response = await api.get("/root")
+      setTest(response.data);
+      console.log(response.data);
 
-  // }
+    } catch (err) {
+      console.log(err);
+    }
+
+  }
 
   return (
     <div className="App">

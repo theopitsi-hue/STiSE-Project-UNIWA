@@ -6,10 +6,8 @@ services:
     container_name: springroll-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: springroll_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: springroll123
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: springroll
     ports:
       - "3312:3306"
     volumes:
