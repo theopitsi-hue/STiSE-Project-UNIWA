@@ -12,9 +12,4 @@ public class StiseSpringrollApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(StiseSpringrollApplication.class, args);
 	}
-
-	@GetMapping("/root")
-	public String apiRoot(){
-		return "hello world!";
-	}
 }

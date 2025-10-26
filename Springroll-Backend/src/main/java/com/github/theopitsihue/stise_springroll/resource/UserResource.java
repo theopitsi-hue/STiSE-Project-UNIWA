@@ -20,7 +20,7 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
         this.userService = userService;
     }
 
-    //DEBUG
+    //DEBUG, REMOVE FOR FINAL
     @GetMapping("/all")
     public List<User> getAllUsers() {
         return userService.getAllUsers(0, 100).getContent();
