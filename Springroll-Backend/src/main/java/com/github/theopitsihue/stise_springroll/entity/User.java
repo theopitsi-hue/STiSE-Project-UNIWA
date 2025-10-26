@@ -1,7 +1,9 @@
 package com.github.theopitsihue.stise_springroll.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,10 +48,8 @@ public class User {
     )
     private String username;
 
-    @Column(
-            name="password",
-            nullable = false
-    )
+    @Column(name="password", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //will hide from api get requests.
     private String password;
 
     @Column(//by default, the columns in mysql are named the /same/ as the field. Using this annotation overrides that.

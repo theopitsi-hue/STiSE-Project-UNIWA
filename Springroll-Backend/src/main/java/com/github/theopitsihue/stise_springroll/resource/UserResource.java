@@ -1,36 +1,36 @@
 package com.github.theopitsihue.stise_springroll.resource;
 
+import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-//@RestController
-//@RequestMapping("/users")
-//@RequiredArgsConstructor
-//public class UserResource {
-//    private final ContactService contactService;
-//
-//    @PostMapping
-//    public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
-//        //return ResponseEntity.ok().body(contactService.createContact(contact));
-//        return ResponseEntity.created(URI.create("/contacts/userID")).body(contactService.createContact(contact));
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<Page<Contact>> getContacts(@RequestParam(value = "page", defaultValue = "0") int page,
-//                                                     @RequestParam(value = "size", defaultValue = "10") int size) {
-//        return ResponseEntity.ok().body(contactService.getAllContacts(page, size));
-//    }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<Contact> getContact(@PathVariable(value = "id") String id) {
-//        return ResponseEntity.ok().body(contactService.getContact(id));
-//    }
-//
-//
-//
-//    @GetMapping(path = "/image/{filename}", produces = { IMAGE_PNG_VALUE, IMAGE_JPEG_VALUE })
-//    public byte[] getPhoto(@PathVariable("filename") String filename) throws IOException {
-//        return Files.readAllBytes(Paths.get(PHOTO_DIRECTORY + filename));
-//    }
-//}
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/users")
+public class UserResource { //to api mas, gia na mporei na sindethei kai na parei plirofories to front-end
+    private final UserService userService;
+
+    public UserResource(UserService userService) {
+        this.userService = userService;
+    }
+
+    //DEBUG
+    @GetMapping("/all")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers(0, 100).getContent();
+    }
+
+
+
+    @GetMapping("/{id}") //ex. springroll/users/ABCD -> test user profile
+    public User getUser(@PathVariable UUID id) {
+        return userService.getUser(id);
+    }
+
+}

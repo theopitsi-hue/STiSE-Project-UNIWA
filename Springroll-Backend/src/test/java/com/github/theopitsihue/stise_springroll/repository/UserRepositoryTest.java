@@ -12,27 +12,27 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@SpringBootTest
+@SpringBootTest
 class UserRepositoryTest {
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Test
-//    public void saveUser() {
-//        User user = User.builder().emailAddress("test@gmail.com").username("testboy").password("123123123").privilege(User.Role.CLIENT).build();
-//        User user1 = User.builder().emailAddress("mpampoulina@gmail.com").username("kokobina").password("kaloskodikos").privilege(User.Role.ADMIN).build();
-//
-//        ArrayList<User> users = new ArrayList<>();
-//        users.add(user);
-//        users.add(user1);
-//
-//        userRepository.deleteAll();
-//        userRepository.saveAll(users);
-//    }
-//
-//    @Test
-//    public void printAllUsers(){
-//        List<User> userList = userRepository.findAll();
-//        System.out.println("userlist = "+userList);
-//    }
+    @Autowired
+    private UserRepository userRepository;
+
+    @Test
+    public void saveUser() {
+        User user = User.builder().email("test@gmail.com").username("testboy").password("123123123").privilege(User.Role.CLIENT).build();
+        User user1 = User.builder().email("mpampoulina@gmail.com").username("kokobina").password("kaloskodikos").privilege(User.Role.ADMIN).build();
+
+        ArrayList<User> users = new ArrayList<>();
+        users.add(user);
+        users.add(user1);
+
+        userRepository.deleteAll();
+        userRepository.saveAll(users);
+    }
+
+    @Test
+    public void printAllUsers(){
+        List<User> userList = userRepository.findAll();
+        System.out.println("userlist = "+userList);
+    }
 }
