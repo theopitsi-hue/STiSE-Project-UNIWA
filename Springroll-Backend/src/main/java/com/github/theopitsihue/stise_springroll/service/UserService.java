@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,10 +22,12 @@ import java.util.UUID;
 @Transactional(rollbackOn = Exception.class)
 public class UserService { //business logic
     private final UserRepository userRepo;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     //Dependency injection
-    public UserService(UserRepository userRepo) {
+    public UserService(UserRepository userRepo, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepo = userRepo;
+        passwordEncoder = bCryptPasswordEncoder;
     }
 
     public Page<User> getAllUsers(int page, int size){
@@ -37,6 +43,7 @@ public class UserService { //business logic
     }
 
     public User createUser(User user){
+        user.setPassHash(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
@@ -44,4 +51,29 @@ public class UserService { //business logic
         userRepo.deleteById(id);
     }
 
+    public void deleteAll() {
+        userRepo.deleteAll();
+    }
+
+    /// Attempts to authenticate a user based on credentials already in the database.
+    /// Used for Sign-In
+    public boolean authenticateUser(String username, String password){
+        var opt = userRepo.findByUsername(username);
+
+        if (opt.isPresent()){
+            var user = opt.get();
+
+            if (!user.getUsername().equals(username)){
+                throw new UsernameNotFoundException("Username not found in database");
+            }
+            System.out.println("PASSWORD:"+password);
+            if (!passwordEncoder.matches(password, user.getPassHash())){
+                throw new BadCredentialsException("Password is incorrect");
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 }

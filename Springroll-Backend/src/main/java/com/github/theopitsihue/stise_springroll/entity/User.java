@@ -49,8 +49,10 @@ public class User {
     private String username;
 
     @Column(name="password", nullable = false)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //will hide from api get requests.
+    @JsonIgnore //will hide from api get requests.
     private String password;
+
+    private String passHash;
 
     @Column(//by default, the columns in mysql are named the /same/ as the field. Using this annotation overrides that.
             name="email",
