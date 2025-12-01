@@ -4,7 +4,7 @@ const Login = () => {
   const [isLoginMode, setIsLoginMode] = useState(true);
 
   return (
-    <div className="w-[430px] bg-springGreenDark p-8 rounded-2xl shadow-lg">
+    <div className="w-[430px] max-w-full sm:w-[430px] bg-springGreenDark p-4 sm:p-8 rounded-2x1 shadow-lg">
 
     {/* Header section */}    
     <div className="flex justify-center mb-4">
