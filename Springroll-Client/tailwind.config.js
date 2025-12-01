@@ -7,8 +7,9 @@ module.exports = {
     extend: {
       colors: {
         springOrange: "#f28c28", 
-        springRed: "#e63946",
-        springGreen: "#60a31c",
+        springRed: "#c02a2a",
+        springGreenMedium: "#60a31c",
+        springGreenDark: "#3e7a10",
       },
     }
   },
