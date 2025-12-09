@@ -2,6 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import api from './api/axiosConfig';
 import { useState, useEffect } from 'react';
+import Login from './pages/Login/Login';
 
 function App() {
   const [users, setUser] = useState();
@@ -23,8 +24,8 @@ function App() {
   }
 
   return (
-    <div className="App">
-   
+    <div className="grid w-full h-screen place-items-center bg-gradient-to-br from-springGreen via-springOrange to-springRed">
+      <Login />
     </div>
   );
 }
