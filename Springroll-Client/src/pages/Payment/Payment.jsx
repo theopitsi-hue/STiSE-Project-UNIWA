@@ -4,11 +4,26 @@ const Payment = () => {
     const [method, setMethod] = useState("card");
 
     return (
-        <div className="min-h-screen w-full flex justify-center items-start py-10 bg-springGreenDark">
+        <div className="min-h-screen w-full flex justify-center items-start py-10 bg-[#000501]">
             <div className="w-full max-w-lg bg-[#1e1e1e] p-6 rounded-xl shadow-lg">
                 <h2 className="text-3xl font-semibold text-springOrange mb-6">
                     Payment Method
                 </h2>
+                {/* Payment Method Tabs */}
+                <div className="flex mb-6 bg-[#2d2d2d] rounded-lg overflow-hidden">
+                    {["card", "paypal", "cash"].map((m) => (
+                        <button
+                            key={m}
+                            onClick={() => setMethod(m)}
+                            className={`w-full py-3 font-semibold transition-colors ${method === m
+                                    ? "bg-springOrange text-black"
+                                    : "text-white hover:bg-[#3a3a3a]"
+                                }`}
+                        >
+                            {m.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );
