@@ -16,6 +16,20 @@ const Payment = () => {
         { id: 2, name: "Souvlakara", price: 3.80, quantity: 2, img: "https://via.placeholder.com/40" },
     ]);
 
+    const incrementQuantity = (id) => {
+        setCart(cart.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+    };
+
+    const decrementQuantity = (id) => {
+        setCart(cart.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item));
+    };
+
+    const removeItem = (id) => {
+        setCart(cart.filter(item => item.id !== id));
+    };
+
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+
     return (
         <><div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6">
 
@@ -86,11 +100,25 @@ const Payment = () => {
                 </div>
             )}
         </div>
-        <div className="w-80 bg-[#1a1a1a] p-4 rounded-lg space-y-4 flex-shrink-0">
+            <div className="w-80 bg-[#1a1a1a] p-4 rounded-lg space-y-4 flex-shrink-0">
                 <h3 className="text-xl font-semibold text-springOrange mb-4 text-center">Your Cart</h3>
                 {cart.length === 0 ? (
                     <p className="text-gray-400 text-center">Your cart is empty</p>
                 ) : null}
+                {cart.map(item => (
+                    <div key={item.id} className="flex justify-between items-center gap-2">
+                        <div>
+                            <p className="text-white font-semibold">{item.name}</p>
+                            <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => decrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">-</button>
+                            <span className="text-white">{item.quantity}</span>
+                            <button onClick={() => incrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">+</button>
+                            <button onClick={() => removeItem(item.id)} className="ml-2 text-red-500 font-bold">×</button>
+                        </div>
+                    </div>
+                ))}
             </div>
         </>
 
