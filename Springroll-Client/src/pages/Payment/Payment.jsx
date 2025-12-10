@@ -63,6 +63,16 @@ const Payment = () => {
                         </button>
                     </div>
                 )}
+                {/* CASH */}
+                {method === "cash" && (
+                    <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
+                        <p className="mb-2 font-semibold text-springOrange">Cash Payment</p>
+                        <p>You will pay the driver upon delivery. Be kind and leave tips yeah?</p>
+                        <button className="w-full mt-4 p-3 bg-springOrange text-black rounded-lg font-bold">
+                            Confirm Order
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
