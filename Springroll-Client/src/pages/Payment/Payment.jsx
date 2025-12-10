@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import productA from "./souvlaki.png";
 
 const Payment = () => {
     const [method, setMethod] = useState("card");
@@ -9,6 +10,11 @@ const Payment = () => {
 
     const [error, setError] = useState("");
 
+    //Sample cart items
+    const [cart, setCart] = useState([
+        { id: 1, name: "Springrolls yum yum", price: 8.30, quantity: 1, img: productA },
+        { id: 2, name: "Souvlakara", price: 3.80, quantity: 2, img: "https://via.placeholder.com/40" },
+    ]);
 
     return (
         <div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6">
