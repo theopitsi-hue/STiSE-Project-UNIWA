@@ -107,6 +107,7 @@ const Payment = () => {
                 ) : null}
                 {cart.map(item => (
                     <div key={item.id} className="flex justify-between items-center gap-2">
+                        <img src={item.img} alt={item.name} className="w-16 h-16 object-cover rounded" />
                         <div>
                             <p className="text-white font-semibold">{item.name}</p>
                             <p className="text-gray-400">${item.price.toFixed(2)}</p>
