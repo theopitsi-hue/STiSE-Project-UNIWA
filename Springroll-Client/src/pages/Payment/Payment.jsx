@@ -17,7 +17,7 @@ const Payment = () => {
     ]);
 
     return (
-        <div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6">
+        <><div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6">
 
             {/* Header */}
             <h2 className="text-3xl font-semibold text-springOrange text-center mb-6">
@@ -32,8 +32,7 @@ const Payment = () => {
                         onClick={() => setMethod(m)}
                         className={`w-full py-3 font-semibold transition-colors ${method === m
                             ? "bg-springGreenMedium text-white"
-                            : "text-gray-400 hover:text-white"
-                            }`}
+                            : "text-gray-400 hover:text-white"}`}
                     >
                         {m.toUpperCase()}
                     </button>
@@ -46,24 +45,20 @@ const Payment = () => {
                     <input
                         type="text"
                         placeholder="Cardholder Name"
-                        className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
-                    />
+                        className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
                     <input
                         type="text"
                         placeholder="Card Number"
-                        className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
-                    />
+                        className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
                     <div className="flex gap-4">
                         <input
                             type="text"
                             placeholder="MM/YY"
-                            className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
-                        />
+                            className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
                         <input
                             type="password"
                             placeholder="CVV"
-                            className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
-                        />
+                            className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
                     </div>
                     <button className="w-full p-3 bg-springGreenMedium text-white rounded-lg font-bold">
                         Pay Now
@@ -91,6 +86,14 @@ const Payment = () => {
                 </div>
             )}
         </div>
+        <div className="w-80 bg-[#1a1a1a] p-4 rounded-lg space-y-4 flex-shrink-0">
+                <h3 className="text-xl font-semibold text-springOrange mb-4 text-center">Your Cart</h3>
+                {cart.length === 0 ? (
+                    <p className="text-gray-400 text-center">Your cart is empty</p>
+                ) : null}
+            </div>
+        </>
+
     );
 };
 
