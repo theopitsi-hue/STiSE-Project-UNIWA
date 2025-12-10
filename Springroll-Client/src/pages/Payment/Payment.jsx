@@ -100,29 +100,38 @@ const Payment = () => {
                 </div>
             )}
         </div>
+
+            {/* RIGHT SIDE: CART */}
             <div className="w-80 bg-[#1a1a1a] p-4 rounded-lg space-y-4 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-springOrange mb-4 text-center">Your Cart</h3>
+                <h3 className="text-xl font-semibold text-springOrange mb-4 text-center">
+                    Your Cart
+                </h3>
                 {cart.length === 0 ? (
                     <p className="text-gray-400 text-center">Your cart is empty</p>
-                ) : null}
-                {cart.map(item => (
-                    <div key={item.id} className="flex justify-between items-center gap-2">
-                        <img src={item.img} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                        <div>
-                            <p className="text-white font-semibold">{item.name}</p>
-                            <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                ) : (
+                    cart.map(item => (
+                        <div key={item.id} className="flex justify-between items-center gap-2">
+                            <img src={item.img} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                            <div>
+                                <p className="text-white font-semibold">{item.name}</p>
+                                <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={() => decrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">-</button>
+                                <span className="text-white">{item.quantity}</span>
+                                <button onClick={() => incrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">+</button>
+                                <button onClick={() => removeItem(item.id)} className="ml-2 text-red-500 font-bold">×</button>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <button onClick={() => decrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">-</button>
-                            <span className="text-white">{item.quantity}</span>
-                            <button onClick={() => incrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">+</button>
-                            <button onClick={() => removeItem(item.id)} className="ml-2 text-red-500 font-bold">×</button>
-                        </div>
-                    </div>
-                ))}
+                    ))
+                )}
+
+                <div className="border-t border-gray-700 pt-2 flex justify-between text-white font-bold">
+                    <span>Total:</span>
+                    <span>${total}</span>
+                </div>
             </div>
         </>
-
     );
 };
 
