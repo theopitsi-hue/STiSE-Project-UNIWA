@@ -16,14 +16,44 @@ const Payment = () => {
                             key={m}
                             onClick={() => setMethod(m)}
                             className={`w-full py-3 font-semibold transition-colors ${method === m
-                                    ? "bg-springOrange text-black"
-                                    : "text-white hover:bg-[#3a3a3a]"
+                                ? "bg-springOrange text-black"
+                                : "text-white hover:bg-[#3a3a3a]"
                                 }`}
                         >
                             {m.toUpperCase()}
                         </button>
                     ))}
                 </div>
+                {/* CARD FORM */}
+                {method === "card" && (
+                    <div className="space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Cardholder Name"
+                            className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Card Number"
+                            className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
+                        />
+                        <div className="flex gap-4">
+                            <input
+                                type="text"
+                                placeholder="MM/YY"
+                                className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
+                            />
+                            <input
+                                type="password"
+                                placeholder="CVV"
+                                className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
+                            />
+                        </div>
+                        <button className="w-full p-3 bg-springOrange text-black rounded-lg font-bold">
+                            Pay Now
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
