@@ -59,7 +59,7 @@ const Payment = () => {
                             className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none"
                         />
                     </div>
-                    <button className="w-full p-3 bg-springGreenMedium text-black rounded-lg font-bold">
+                    <button className="w-full p-3 bg-springGreenMedium text-white rounded-lg font-bold">
                         Pay Now
                     </button>
                 </div>
@@ -69,7 +69,7 @@ const Payment = () => {
             {method === "paypal" && (
                 <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
                     <p>You will be redirected to PayPal to complete your payment.</p>
-                    <button className="w-full mt-4 p-3 bg-springGreenMedium text-black rounded-lg font-bold">
+                    <button className="w-full mt-4 p-3 bg-springGreenMedium text-white rounded-lg font-bold">
                         Continue to PayPal
                     </button>
                 </div>
@@ -79,7 +79,7 @@ const Payment = () => {
                 <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
                     <p className="mb-2 font-semibold text-springOrange">Cash Payment</p>
                     <p>You will pay the driver upon delivery. Be kind and leave tips yeah?</p>
-                    <button className="w-full mt-4 p-3 bg-springGreenMedium text-black rounded-lg font-bold">
+                    <button className="w-full mt-4 p-3 bg-springGreenMedium text-white rounded-lg font-bold">
                         Confirm Order
                     </button>
                 </div>
