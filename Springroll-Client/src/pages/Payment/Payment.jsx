@@ -54,6 +54,15 @@ const Payment = () => {
                         </button>
                     </div>
                 )}
+                {/* PAYPAL */}
+                {method === "paypal" && (
+                    <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
+                        <p>You will be redirected to PayPal to complete your payment.</p>
+                        <button className="w-full mt-4 p-3 bg-springOrange text-black rounded-lg font-bold">
+                            Continue to PayPal
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
