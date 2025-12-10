@@ -2,6 +2,13 @@ import React, { useState } from "react";
 
 const Payment = () => {
     const [method, setMethod] = useState("card");
+    const [cardName, setCardName] = useState("");
+    const [cardNumber, setCardNumber] = useState("");
+    const [expiry, setExpiry] = useState("");
+    const [cvv, setCvv] = useState("");
+
+    const [error, setError] = useState("");
+
 
     return (
         <div className="min-h-screen w-full flex justify-center items-start py-10 bg-[#000501]">
