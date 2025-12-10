@@ -14,7 +14,7 @@ const Payment = () => {
         <div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6">
 
             {/* Header */}
-            <h2 className="text-3xl font-semibold text-springOrange mb-6">
+            <h2 className="text-3xl font-semibold text-springOrange text-center mb-6">
                 Payment Method
             </h2>
 
