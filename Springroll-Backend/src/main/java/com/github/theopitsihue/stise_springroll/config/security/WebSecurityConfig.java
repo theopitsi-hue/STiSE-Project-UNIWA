@@ -53,11 +53,13 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/register").permitAll()
-                        .anyRequest().permitAll()
+                .cors(Customizer.withDefaults())  // ENABLE CORS
+                .csrf(AbstractHttpConfigurer::disable)  // disable CSRF for dev
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/login", "/register", "/api/account/auth/**").permitAll()  // allow login/signup endpoints
+                        .anyRequest().authenticated()
                 );
+
 
         return http.build();
     }

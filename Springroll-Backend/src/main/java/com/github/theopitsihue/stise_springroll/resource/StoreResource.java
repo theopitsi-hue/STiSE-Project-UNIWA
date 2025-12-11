@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/stores")
+@RequestMapping("/api/stores")
 public class StoreResource { //to api mas, gia na mporei na sindethei kai na parei plirofories to front-end
     private final StoreService storeService;
 

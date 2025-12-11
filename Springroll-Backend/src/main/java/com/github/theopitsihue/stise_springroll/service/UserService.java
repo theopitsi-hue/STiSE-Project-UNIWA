@@ -1,17 +1,16 @@
 package com.github.theopitsihue.stise_springroll.service;
 
 import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.entity.request.AuthData;
+import com.github.theopitsihue.stise_springroll.entity.request.SignUpRequest;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +43,7 @@ public class UserService { //business logic
 
     public User createUser(User user){
         user.setPassHash(passwordEncoder.encode(user.getPassword()));
+        if (user.getPrivilege() == null) user.setPrivilege(User.Role.CLIENT);
         return userRepo.save(user);
     }
 
@@ -57,23 +57,37 @@ public class UserService { //business logic
 
     /// Attempts to authenticate a user based on credentials already in the database.
     /// Used for Sign-In
-    public boolean authenticateUser(String username, String password){
-        var opt = userRepo.findByUsername(username);
+    public AuthData authenticateUser(String username, String password){
+        var opt = userRepo.findByEmail(username);
 
         if (opt.isPresent()){
             var user = opt.get();
 
-            if (!user.getUsername().equals(username)){
-                throw new UsernameNotFoundException("Username not found in database");
+            if (!user.getEmail().equals(username)){
+                throw new UsernameNotFoundException("Email not found in database");
             }
-            System.out.println("PASSWORD:"+password);
+
             if (!passwordEncoder.matches(password, user.getPassHash())){
                 throw new BadCredentialsException("Password is incorrect");
             }
 
-            return true;
+            return new AuthData(user.getUsername(),true);
         }
 
-        return false;
+        return new AuthData(null, false);
+    }
+
+    public boolean signUpUser(SignUpRequest request){
+        if (userRepo.findByEmail(request.getEmail()).isPresent() || userRepo.findByUsername(request.getUsername()).isPresent()){
+            return false;
+        }
+
+        User user=new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setEmail(request.getEmail());
+        user.setPrivilege(User.Role.CLIENT);
+        createUser(user);
+        return true;
     }
 }
