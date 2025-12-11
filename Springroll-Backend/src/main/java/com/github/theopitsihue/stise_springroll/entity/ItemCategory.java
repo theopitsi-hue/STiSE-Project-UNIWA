@@ -1,15 +1,15 @@
 package com.github.theopitsihue.stise_springroll.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -18,13 +18,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(
-        name = "dbl_category",
-        uniqueConstraints = @UniqueConstraint(
-                name = "unique_values",
-                columnNames = "name"
-        )
+        name = "dbl_item_category"
 )
-public class Category {
+public class ItemCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,12 +28,17 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false,unique = true) //human readable url name!!! wooo!
+    @Column(nullable = false, unique = true) //human readable url name!!! wooo!
     private String slug;
 
-    @ManyToMany(mappedBy = "categories")
-    @JsonIgnore
-    private Set<Store> stores = new HashSet<>();
-
     private Integer orderIndex;  // for sorting
+
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> items = new ArrayList<>();
 }
+
+

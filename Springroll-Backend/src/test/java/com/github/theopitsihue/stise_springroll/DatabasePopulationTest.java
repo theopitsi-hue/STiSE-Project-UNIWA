@@ -1,9 +1,6 @@
 package com.github.theopitsihue.stise_springroll;
 
-import com.github.theopitsihue.stise_springroll.entity.Category;
-import com.github.theopitsihue.stise_springroll.entity.Item;
-import com.github.theopitsihue.stise_springroll.entity.Store;
-import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.entity.*;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import com.github.theopitsihue.stise_springroll.service.CategoryService;
 import com.github.theopitsihue.stise_springroll.service.StoreService;
@@ -42,6 +39,8 @@ class DatabasePopulationTest {
         Category pizza = Category.builder().name("Pizza").build();
         Category milkshakes = Category.builder().name("Milkshakes").build();
         Category yogurt = Category.builder().name("Yogurt").build();
+
+        ItemCategory drinks = ItemCategory.builder().name("drinks").build();
 
         Store one = Store.builder().name("papa's pizza").build();
         Store two = Store.builder()

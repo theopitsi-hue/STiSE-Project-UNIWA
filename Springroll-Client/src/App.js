@@ -12,12 +12,6 @@ import { UserProvider } from './context/UserContext';
 function App() {
   const [users, setUser] = useState();
 
-  useEffect(() => {
-    console.log("Hewowoowoww");
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, [])
-
   const getTest = async () => {
     try {
       const response = await api.get("/root")

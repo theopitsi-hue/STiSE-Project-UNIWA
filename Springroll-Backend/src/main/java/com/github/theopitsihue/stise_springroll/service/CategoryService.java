@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-@Transactional(rollbackOn = Exception.class)
+@Transactional(rollbackOn = Exception.class) //USED FOR SHOOOOP Categories, not items!!
 public class CategoryService {//business logic
     private final CategoryRepository catRepo;
 
