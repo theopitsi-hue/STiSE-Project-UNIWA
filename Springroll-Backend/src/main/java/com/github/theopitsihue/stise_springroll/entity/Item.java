@@ -35,5 +35,9 @@ public class Item {
     @Builder.Default //if this item is available to order
     private boolean available = true;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private ItemCategory category;
+
 
 }
