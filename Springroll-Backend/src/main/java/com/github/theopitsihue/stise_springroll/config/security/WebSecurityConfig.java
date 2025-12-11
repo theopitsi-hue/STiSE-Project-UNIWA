@@ -56,12 +56,7 @@ public class WebSecurityConfig {
                 .cors(Customizer.withDefaults())  // ENABLE CORS
                 .csrf(AbstractHttpConfigurer::disable)  // disable CSRF for dev
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login",
-                                "/register",
-                                "/api/account/auth/**",
-                                "/api/stores/**"
-                        )
-                        .permitAll()  // allow login/signup endpoints
+                        .requestMatchers("/login", "/register", "/api/account/auth/**").permitAll()  // allow login/signup endpoints
                         .anyRequest().authenticated()
                 );
 
