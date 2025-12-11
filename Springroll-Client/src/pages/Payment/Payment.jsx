@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import productA from "./souvlaki.png";
+const productA = "/images/souvlaki.png";
 
 const Payment = () => {
     const [method, setMethod] = useState("card");
@@ -12,8 +12,8 @@ const Payment = () => {
 
     //Sample cart items
     const [cart, setCart] = useState([
-        { id: 1, name: "Springrolls yum yum", price: 8.30, quantity: 1, img: productA },
-        { id: 2, name: "Souvlakara", price: 3.80, quantity: 2, img: "https://via.placeholder.com/40" },
+        { id: 1, name: "Souvlakara", price: 3.80, quantity: 1, img: productA },
+        { id: 2, name: "Springrolls yum yum", price: 7.90, quantity: 2, img: "https://via.placeholder.com/40" },
     ]);
 
     const incrementQuantity = (id) => {
