@@ -31,6 +31,4 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
         return storeService.getStoreBySlug(slug);
     }
 
-
-
 }

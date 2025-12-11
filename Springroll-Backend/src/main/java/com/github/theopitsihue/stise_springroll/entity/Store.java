@@ -46,7 +46,7 @@ public class Store {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @JsonIgnore
-    private Set<Category> categories= new HashSet<>();
+    private Set<Category> categories= new HashSet<>(); //katigories gia magazia, px souvlaki,pizza,ect
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
