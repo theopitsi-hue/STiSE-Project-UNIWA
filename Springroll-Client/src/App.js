@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from './pages/Login/Login';
 import Payment from './pages/Payment/Payment';
+import Stores from './pages/Stores/Stores'
 
 function App() {
   const [users, setUser] = useState();
@@ -26,11 +27,12 @@ function App() {
   }
 
   return (
-     <Router>
+    <Router>
       <div className="grid w-full h-screen place-items-center bg-gradient-to-br from-springGreen via-springOrange to-springRed">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/payment" element={<Payment />} />
+          <Route path="/stores" element={<Stores />} />
 
           {/* Default route (optional) */}
           <Route path="/" element={<Login />} />

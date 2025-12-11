@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +34,7 @@ const Login = () => {
 
         const data = await response.json();
         console.log("User logged in:", data.message);
+        navigate('/stores');
 
       } catch (err) {
         console.error(err);
@@ -54,6 +58,7 @@ const Login = () => {
 
         const data = await response.json();
         console.log("New user registered in:", data);
+        navigate('/login');
 
       } catch (err) {
         console.error(err);
