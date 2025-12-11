@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 
-const BACKDROP_URL = "https://via.placeholder.com/400x150";
-const ICON_URL = "https://via.placeholder.com/80";
+
+const BACKDROP_URL = "https://cdn.pixabay.com/photo/2015/11/06/15/04/bamboo-1028699_1280.jpg";
+const ICON_URL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngarts.com%2Ffiles%2F10%2FCircle-PNG-Transparent-Image.png&f=1&nofb=1&ipt=75453769b9e44f72b538b29c8eaddfd56aecf437a0e17737e515f35a8f1d44d5";
 
 const Stores = () => {
+    const { user } = useUser(); //to get data about the signed-in user
     const [stores, setStores] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -32,7 +35,13 @@ const Stores = () => {
 
     return (
         <div className="p-8 bg-gray-900 min-h-screen">
+
             <h1 className="text-3xl font-bold mb-8 text-white text-center">All Stores</h1>
+            {user?.role === 2 && ( //enabling admin-only functionality
+                <button className="bg-red-500 text-white px-4 py-2 rounded">
+                    Admin Panel for {user.username}
+                </button>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {stores.map(store => (
                     <button

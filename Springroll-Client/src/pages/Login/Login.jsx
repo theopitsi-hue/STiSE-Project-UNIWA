@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
+
 
 const Login = () => {
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -41,6 +44,10 @@ const Login = () => {
       if (!response.ok) {
         throw new Error(data.message || "Request failed");
       }
+
+      showPopupMessage(data.message);
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
 
       if (isLoginMode) {
         showPopupMessage("Login successful! Welcome!");
