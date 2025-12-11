@@ -71,10 +71,10 @@ public class UserService { //business logic
                 throw new BadCredentialsException("Password is incorrect");
             }
 
-            return new AuthData(user.getUsername(),true);
+            return new AuthData(user.getUsername(),true, user.getPrivilege().ordinal());
         }
 
-        return new AuthData(null, false);
+        return new AuthData(null, false, 0);
     }
 
     public boolean signUpUser(SignUpRequest request){

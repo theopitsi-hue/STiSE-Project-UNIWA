@@ -7,13 +7,16 @@ import Login from './pages/Login/Login';
 import Payment from './pages/Payment/Payment';
 import Stores from './pages/Stores/Stores'
 import StoreDetail from './pages/StoreDetail/StoreDetail'
+import { UserProvider } from './context/UserContext';
 
 function App() {
   const [users, setUser] = useState();
 
   useEffect(() => {
     console.log("Hewowoowoww");
-  })
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, [])
 
   const getTest = async () => {
     try {
@@ -28,19 +31,21 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="grid w-full h-screen place-items-center bg-gradient-to-br from-springGreen via-springOrange to-springRed">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/stores" element={<Stores />} />
-          <Route path="/stores/:slug" element={<StoreDetail />} />
+    <UserProvider>
+      <Router>
+        <div className="grid w-full h-screen place-items-center bg-gradient-to-br from-springGreen via-springOrange to-springRed">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/stores" element={<Stores />} />
+            <Route path="/stores/:slug" element={<StoreDetail />} />
 
-          {/* Default route (optional) */}
-          <Route path="/" element={<Login />} />
-        </Routes>
-      </div>
-    </Router>
+            {/* Default route (optional) */}
+            <Route path="/" element={<Login />} />
+          </Routes>
+        </div>
+      </Router>
+    </UserProvider>
   );
 }
 

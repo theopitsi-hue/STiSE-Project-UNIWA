@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.resource;
 
+import com.github.theopitsihue.stise_springroll.config.security.CustomUserDetails;
 import com.github.theopitsihue.stise_springroll.entity.request.AuthData;
 import com.github.theopitsihue.stise_springroll.entity.request.LoginRequest;
 import com.github.theopitsihue.stise_springroll.entity.request.LoginResponse;
@@ -8,7 +9,11 @@ import com.github.theopitsihue.stise_springroll.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/account")
@@ -39,9 +44,9 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
 
             if (authData.isSuccess()){
                 session.setAttribute("user", req.getEmail());
-                return ResponseEntity.ok(new LoginResponse(true, authData.getUsername()));
+                return ResponseEntity.ok(new LoginResponse(true, authData.getUsername(), authData.getRole()));
             }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(false, "Unable to Authorize user."));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponse(false, "Unable to Authorize user.", 0));
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -55,11 +60,10 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing sign-up form details.");
 
         if (userService.signUpUser(req)){
-            return ResponseEntity.ok(new LoginResponse(true,req.getUsername()));
+            return ResponseEntity.ok(new LoginResponse(true,req.getUsername(),0));
 
         }else{
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("User with that password/email already exists.");
-
         }
     }
 
