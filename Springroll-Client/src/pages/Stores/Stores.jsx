@@ -73,8 +73,11 @@ const Stores = () => {
                   <p className="text-sm text-gray-400">{store.slug}</p>
                 )}
                 <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/stores/${store.slug}`);
+                  }}
                   className="mt-3 px-4 py-2 bg-springGreenMedium rounded-full text-white text-sm font-medium hover:bg-springGreenLight transition"
-                  onClick={() => navigate(`/stores/${store.slug}`)}
                 >
                   Visit Store
                 </button>
@@ -82,8 +85,9 @@ const Stores = () => {
             </div>
           ))}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 };
 export default Stores;
