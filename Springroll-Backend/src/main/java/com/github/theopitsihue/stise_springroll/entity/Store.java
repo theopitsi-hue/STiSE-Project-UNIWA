@@ -4,6 +4,7 @@ package com.github.theopitsihue.stise_springroll.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekSchedule;
 import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekScheduleConverter;
 import jakarta.persistence.*;
@@ -70,5 +71,12 @@ public class Store {
 
     @Builder.Default
     private boolean forceClosed = false;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "store_item_groups",
+            joinColumns = @JoinColumn(name = "store_id")
+    )
+    private Set<ItemGroup> itemGroups = new HashSet<>();
 
 }

@@ -1,9 +1,12 @@
 package com.github.theopitsihue.stise_springroll.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -35,9 +38,12 @@ public class Item {
     @Builder.Default //if this item is available to order
     private boolean available = true;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private ItemCategory category;
+    //all the in-store categories this item belongs to
+    private Set<String> itemGroupIds = new HashSet<>();
 
-
+    public Item addToItemGroupId(ItemGroup in){
+        if (itemGroupIds == null) itemGroupIds = new HashSet<>();
+        itemGroupIds.add(in.getName());
+        return this;
+    }
 }

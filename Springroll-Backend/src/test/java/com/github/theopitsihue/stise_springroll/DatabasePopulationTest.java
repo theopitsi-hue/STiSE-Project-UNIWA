@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll;
 
+import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import com.github.theopitsihue.stise_springroll.entity.*;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import com.github.theopitsihue.stise_springroll.service.CategoryService;
@@ -40,7 +41,7 @@ class DatabasePopulationTest {
         Category milkshakes = Category.builder().name("Milkshakes").build();
         Category yogurt = Category.builder().name("Yogurt").build();
 
-        ItemCategory drinks = ItemCategory.builder().name("drinks").build();
+        ItemGroup groupMilkshakes = new ItemGroup("milkshakes",0);
 
         Store one = Store.builder().name("papa's pizza").build();
         Store two = Store.builder()
@@ -48,11 +49,17 @@ class DatabasePopulationTest {
                 .build();
 
         two.setItems(
-                List.of(Item.builder().name("Vanilla Milkshake").price(3.49).store(two).build(),
-                Item.builder().name("Chocolate Milkshake").price(3.70).store(two).build(),
-                Item.builder().name("Strawberry Milkshake").price(3.49).store(two).build(),
+                List.of(Item.builder().name("Vanilla Milkshake").price(3.49).store(two).build().addToItemGroupId(groupMilkshakes),
+                Item.builder().name("Chocolate Milkshake").price(3.70).store(two).build().addToItemGroupId(groupMilkshakes),
+                Item.builder().name("Strawberry Milkshake").price(3.49).store(two).build().addToItemGroupId(groupMilkshakes),
                 Item.builder().name("Frozen Yogurt").price(5.5).store(two).build())
         );
+
+        two.setItemGroups(Set.of(
+                new ItemGroup("popular",10),
+                groupMilkshakes,
+                new ItemGroup("yogurt",0)
+        ));
 
         one.setCategories(Set.of(pizza));
         two.setCategories(Set.of(yogurt,milkshakes));
