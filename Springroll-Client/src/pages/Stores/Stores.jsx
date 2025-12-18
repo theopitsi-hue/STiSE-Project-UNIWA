@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const BACKDROP_URL = "https://via.placeholder.com/400x150";
 const ICON_URL = "https://via.placeholder.com/80";
@@ -6,6 +7,7 @@ const ICON_URL = "https://via.placeholder.com/80";
 const Stores = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8080/api/stores", {
@@ -47,6 +49,7 @@ const Stores = () => {
           {stores.map(store => (
             <div
               key={store.id}
+              onClick={() => navigate(`/stores/${store.slug}`)}
               className="bg-[#1a1a1a] text-white rounded-2xl shadow-lg overflow-hidden"
             >
               <div className="relative">
