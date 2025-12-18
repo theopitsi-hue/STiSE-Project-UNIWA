@@ -1,10 +1,10 @@
-import React, { useState} from 'react'
+import React, { useEffect, useState } from 'react'
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
     fetch("http://localhost:8080/api/stores", {
       credentials: "include",
       headers: { "Content-Type": "application/json" }
@@ -23,11 +23,24 @@ const Stores = () => {
       });
   }, []);
 
+  if (loading) return (
+    <p className="text-center mt-16 text-white text-lg">
+      Loading stores...
+    </p>
+  );
+
   return (
     <div className="p-6 sm:p-8 bg-[#0f0f0f] min-h-screen">
       <h1 className="text-3xl font-bold mb-10 text-springOrange text-center">
         Stores
       </h1>
+
+      {stores.length === 0 && (
+        <p className="text-center text-gray-400">
+          No stores available at the moment.
+          </p>
+      )}
+
     </div>
   )
 }
