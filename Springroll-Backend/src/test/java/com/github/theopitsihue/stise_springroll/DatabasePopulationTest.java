@@ -53,8 +53,14 @@ class DatabasePopulationTest {
                 List.of(Item.builder().name("Vanilla Milkshake").price(BigDecimal.valueOf(3.49)).store(two).build().addToItemGroupId(groupMilkshakes),
                 Item.builder().name("Chocolate Milkshake").price(BigDecimal.valueOf(3.70)).store(two).build().addToItemGroupId(groupMilkshakes),
                 Item.builder().name("Strawberry Milkshake").price(BigDecimal.valueOf(3.49)).store(two).build().addToItemGroupId(groupMilkshakes),
-                Item.builder().name("Frozen Yogurt").price(BigDecimal.valueOf(5.5)).store(two).build())
-        );
+                Item.builder().name("Frozen Yogurt").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 1 ").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 2").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 3").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 4").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 5").price(BigDecimal.valueOf(5.5)).store(two).build(),
+                Item.builder().name("Frozen Yogurt 6").price(BigDecimal.valueOf(5.5)).store(two).build()
+                ));
 
         two.setItemGroups(Set.of(
                 new ItemGroup("popular",10),
