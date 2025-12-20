@@ -91,7 +91,7 @@ const StoreDetail = () => {
 
     return (
         <div
-            className="bg-gray-900 text-white w-full"
+            className="bg-gray-900 text-white w-full y-full"
             style={{ paddingTop: `${HEADER_TOTAL}px` }}
         >
             {/* Navbar */}
@@ -213,70 +213,72 @@ const StoreDetail = () => {
 
                 {/* Right Sidebar - Cart */}
                 <div
-                    className="sticky bg-gray-800 p-2 top-28 h-[80vh] rounded-lg flex flex-col justify-between shadow-lg"
+                    className="sticky bg-gray-800 p-2 top-28 h-[80vh] rounded-lg flex flex-col shadow-lg overflow-hidden w-105"
                     style={{ top: `${HEADER_TOTAL}px` }}
                 >
-                    <div>
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-semibold m-2 leading-[1]">Cart</h2>
-                            <button
-                                onClick={clearCart}
-                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                            >
-                                Clear
-                            </button>
-                        </div>
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-2 flex-shrink-0">
+                        <h2 className="text-lg font-semibold m-2 leading-[1]">Cart</h2>
+                        <button
+                            onClick={clearCart}
+                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                        >
+                            Clear
+                        </button>
+                    </div>
 
+                    {/* Scrollable cart items */}
+                    <div className="overflow-y-auto flex-1">
                         {Object.values(cart).length === 0 ? (
                             <p className="text-gray-400">Your cart is empty</p>
                         ) : (
-                            <>
-                                {Object.values(cart).map(({ item, quantity }) => (
-                                    <div key={item.id} className="flex items-center justify-between mb-2">
-                                        <img
-                                            src={item.image || BACKDROP_URL}
-                                            alt={item.name}
-                                            className="w-16 h-16 object-cover rounded"
-                                        />
-                                        <div className="flex-1 px-2">
-                                            <p className="text-sm font-semibold leading-[1] m-0">{item.name}</p>
-                                            <p className="text-xs text-gray-300 leading-[1.2] m-0 whitespace-normal break-words">
-                                                {item.name}
-                                            </p>
-                                            <p className="text-sm font-bold leading-[2] m-0">{item.price} €</p>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <button
-                                                onClick={() => removeFromCart(item)}
-                                                className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                            >
-                                                -
-                                            </button>
-                                            <span>{quantity}</span>
-                                            <button
-                                                onClick={() => addToCart(item)}
-                                                className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                            >
-                                                +
-                                            </button>
-                                        </div>
+                            Object.values(cart).map(({ item, quantity }) => (
+                                <div key={item.id} className="flex items-center justify-between mb-2">
+                                    <img
+                                        src={item.image || BACKDROP_URL}
+                                        alt={item.name}
+                                        className="w-16 h-16 object-cover rounded"
+                                    />
+                                    <div className="flex-1 px-2">
+                                        <p className="text-sm font-semibold leading-[1] m-0">{item.name}</p>
+                                        <p className="text-xs text-gray-300 leading-[1.2] m-0 whitespace-normal break-words">
+                                            {item.name}
+                                        </p>
+                                        <p className="text-sm font-bold leading-[2] m-0">{item.price} €</p>
                                     </div>
-                                ))}
-                                <div className="mt-4 font-bold">Total: {cartFinalPrice.toFixed(2)} €</div>
-                            </>
+                                    <div className="flex items-center space-x-2">
+                                        <button
+                                            onClick={() => removeFromCart(item)}
+                                            className="bg-gray-700 px-2 rounded hover:bg-gray-600"
+                                        >
+                                            -
+                                        </button>
+                                        <span>{quantity}</span>
+                                        <button
+                                            onClick={() => addToCart(item)}
+                                            className="bg-gray-700 px-2 rounded hover:bg-gray-600"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
                         )}
                     </div>
 
-                    <div className="mt-4">
+                    {/* Footer - always visible order button */}
+                    <div className="mt-2 flex-shrink-0">
                         <button
                             onClick={() => alert("Order placed!")}
-                            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                            className="w-full bg-green-600 text-white underline bold py-2 rounded hover:bg-green-800"
                             disabled={Object.values(cart).length === 0}
                         >
-                            Order
+                            Order Total: {cartFinalPrice.toFixed(2)} €
                         </button>
                     </div>
                 </div>
+
+
             </div>
 
             <style>{`
