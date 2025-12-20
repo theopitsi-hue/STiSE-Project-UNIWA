@@ -5,6 +5,7 @@ import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,14 +20,14 @@ import java.util.Set;
 public class Item {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
-    private double price;
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")

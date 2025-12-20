@@ -32,9 +32,10 @@ public class ItemService { //business logic
         return itemRepo.findById(id).isPresent();
     }
 
-    public Item getItemByID(UUID id){
+    public Item getItemByID(long id){
         return itemRepo.findById(id).orElseThrow(()->new RuntimeException("Item with id: "+id+" not found."));
     }
+
 
     public Item createItem(@NotNull Item store){
         return itemRepo.save(store);

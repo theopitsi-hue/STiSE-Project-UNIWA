@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface ItemRepository extends JpaRepository<Item, UUID> {
     @Nonnull
-    Optional<Item> findById(@Nonnull UUID id);
+    Optional<Item> findById(@Nonnull long id);
     Optional<Item> findByName(String name);
 }
 

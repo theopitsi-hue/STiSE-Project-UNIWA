@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.service;
 
+import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
 import com.github.theopitsihue.stise_springroll.repository.CartRepository;
 import jakarta.transaction.Transactional;
@@ -9,6 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
@@ -34,6 +38,7 @@ public class CartService {
     }
 
     public Cart create(@NotNull Cart entity){
+        entity.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(entity);
     }
 
@@ -43,5 +48,13 @@ public class CartService {
 
     public void deleteAll() {
         cartRepository.deleteAll();
+    }
+
+    public Optional<Cart> findByUser(User user) {
+      return cartRepository.findByUser(user);
+    }
+
+    public void save(Cart cart){
+        cartRepository.save(cart);
     }
 }

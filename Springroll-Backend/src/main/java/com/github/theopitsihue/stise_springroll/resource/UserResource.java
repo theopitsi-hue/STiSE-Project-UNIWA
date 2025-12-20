@@ -1,19 +1,14 @@
 package com.github.theopitsihue.stise_springroll.resource;
 
-import com.github.theopitsihue.stise_springroll.config.security.CustomUserDetails;
-import com.github.theopitsihue.stise_springroll.entity.request.AuthData;
-import com.github.theopitsihue.stise_springroll.entity.request.LoginRequest;
-import com.github.theopitsihue.stise_springroll.entity.request.LoginResponse;
-import com.github.theopitsihue.stise_springroll.entity.request.SignUpRequest;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.AuthData;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.LoginRequest;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.LoginResponse;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.SignUpRequest;
 import com.github.theopitsihue.stise_springroll.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/account")

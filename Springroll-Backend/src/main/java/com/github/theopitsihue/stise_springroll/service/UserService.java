@@ -1,8 +1,8 @@
 package com.github.theopitsihue.stise_springroll.service;
 
 import com.github.theopitsihue.stise_springroll.entity.User;
-import com.github.theopitsihue.stise_springroll.entity.request.AuthData;
-import com.github.theopitsihue.stise_springroll.entity.request.SignUpRequest;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.AuthData;
+import com.github.theopitsihue.stise_springroll.entity.request.auth.SignUpRequest;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -89,5 +90,9 @@ public class UserService { //business logic
         user.setPrivilege(User.Role.CLIENT);
         createUser(user);
         return true;
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepo.findByEmail(email);
     }
 }

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,10 +50,10 @@ class DatabasePopulationTest {
                 .build();
 
         two.setItems(
-                List.of(Item.builder().name("Vanilla Milkshake").price(3.49).store(two).build().addToItemGroupId(groupMilkshakes),
-                Item.builder().name("Chocolate Milkshake").price(3.70).store(two).build().addToItemGroupId(groupMilkshakes),
-                Item.builder().name("Strawberry Milkshake").price(3.49).store(two).build().addToItemGroupId(groupMilkshakes),
-                Item.builder().name("Frozen Yogurt").price(5.5).store(two).build())
+                List.of(Item.builder().name("Vanilla Milkshake").price(BigDecimal.valueOf(3.49)).store(two).build().addToItemGroupId(groupMilkshakes),
+                Item.builder().name("Chocolate Milkshake").price(BigDecimal.valueOf(3.70)).store(two).build().addToItemGroupId(groupMilkshakes),
+                Item.builder().name("Strawberry Milkshake").price(BigDecimal.valueOf(3.49)).store(two).build().addToItemGroupId(groupMilkshakes),
+                Item.builder().name("Frozen Yogurt").price(BigDecimal.valueOf(5.5)).store(two).build())
         );
 
         two.setItemGroups(Set.of(

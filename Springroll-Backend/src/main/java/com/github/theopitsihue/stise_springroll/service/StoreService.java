@@ -2,6 +2,7 @@ package com.github.theopitsihue.stise_springroll.service;
 
 
 import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekSchedule;
+import com.github.theopitsihue.stise_springroll.entity.Item;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.repository.StoreRepository;
@@ -54,6 +55,10 @@ public class StoreService { //business logic
 
     public Store getStoreByID(UUID id){
         return storeRepo.findById(id).orElseThrow(()->new RuntimeException("Store with id: "+id+" not found."));
+    }
+
+    public Store getStoreByID(String id){
+        return getStoreByID(UUID.fromString(id));
     }
 
     public Store getStoreBySlug(String slug){

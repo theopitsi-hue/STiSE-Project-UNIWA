@@ -7,13 +7,17 @@ const BACKDROP_URL =
 const ICON_URL =
     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngarts.com%2Ffiles%2F10%2FCircle-PNG-Transparent-Image.png&f=1&nofb=1&ipt=75453769b9e44f72b538b29c8eaddfd56aecf437a0e17737e515f35a8f1d44d5";
 
+const CART_MOD_URL = 'http://localhost:8080/api/cart/mod'
+
 const StoreDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("");
-    const [cart, setCart] = useState({}); // { itemId: { item, quantity } }
+    const [cart, setCart] = useState({});
+    const [cartFinalPrice, setCartFinalPrice] = useState(0);
+
 
     useEffect(() => {
         fetch(`http://localhost:8080/api/stores/${slug}`, { credentials: "include" })
@@ -39,24 +43,56 @@ const StoreDetail = () => {
     if (loading)
         return <p className="text-center mt-8 text-white">Loading store...</p>;
 
-    // Cart manipulation functions
+
+    const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
+        try {
+            const response = await fetch(CART_MOD_URL, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ itemId, change, clear })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("Cart modification error:", errText);
+                return;
+            }
+
+            const data = await response.json(); // CartModificationResponse
+            const updatedCart = {};
+
+            data.items.forEach(ci => {
+                updatedCart[ci.itemId] = {
+                    item: {
+                        id: ci.itemId,
+                        name: ci.name,
+                        price: ci.price,
+                        image: ci.image || BACKDROP_URL
+                    },
+                    quantity: ci.quantity
+                };
+            });
+
+            setCart(updatedCart);
+            setCartFinalPrice(data.finalPrice);
+        } catch (err) {
+            console.error("Cart modification exception:", err);
+        }
+    };
+
     const addToCart = (item) => {
-        setCart((prev) => {
-            const existing = prev[item.id] || { item, quantity: 0 };
-            return { ...prev, [item.id]: { ...existing, quantity: existing.quantity + 1 } };
-        });
+        modifyCartOnServer(item.id, 1); // increase quantity by 1
     };
 
     const removeFromCart = (item) => {
-        setCart((prev) => {
-            const existing = prev[item.id];
-            if (!existing) return prev;
-            if (existing.quantity <= 1) {
-                const { [item.id]: _, ...rest } = prev;
-                return rest;
-            }
-            return { ...prev, [item.id]: { ...existing, quantity: existing.quantity - 1 } };
-        });
+        modifyCartOnServer(item.id, -1); // decrease quantity by 1
+    };
+
+    const clearCart = () => {
+        modifyCartOnServer(null, 0, true); // clear flag
     };
 
     return (
@@ -107,9 +143,9 @@ const StoreDetail = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex mt-8 px-8 gap-8">
+            <div className="flex mt-4 px-3 gap-3">
                 {/* Left Sidebar - Categories */}
-                <div className="w-1/5 sticky top-36 h-[80vh] overflow-y-auto bg-gray-900 pr-4">
+                <div className="w-1/6 sticky top-36 h-[80vh] overflow-y-auto bg-gray-900 pr-1">
                     {store.itemGroups?.map((group) => (
                         <button
                             key={group.name}
@@ -125,7 +161,7 @@ const StoreDetail = () => {
                 </div>
 
                 {/* Right Content - Items */}
-                <div className="w-3/5 grid grid-cols-2 gap-6">
+                <div className="w-3/5 grid grid-cols-2 gap-3">
                     {
                         store.items?.length == 0 || store.items == null ?
                             (
@@ -145,7 +181,7 @@ const StoreDetail = () => {
                                                 alt={item.name}
                                                 className="h-48 w-full object-cover"
                                             />
-                                            <div className="p-4 flex flex-col justify-between">
+                                            <div className="p-2 flex flex-col justify-between">
                                                 <div>
                                                     <h3 className="text-xl font-semibold">{item.name}</h3>
                                                     <p className="text-gray-300 mt-1">{item.description}</p>
@@ -164,42 +200,71 @@ const StoreDetail = () => {
                 </div>
 
                 {/* Right Sidebar - cart */}
-                <div className="w-1/5 sticky top-36 h-[80vh] overflow-y-auto bg-gray-900 pr-4">
-                    <h2 className="text-lg font-semibold mb-4">Cart</h2>
-                    {Object.values(cart).length === 0 ? (
-                        <p className="text-gray-400">Your cart is empty</p>
-                    ) : (
-                        Object.values(cart).map(({ item, quantity }) => (
-                            <div key={item.id} className="flex items-center justify-between mb-3">
-                                <img
-                                    src={item.image || BACKDROP_URL}
-                                    alt={item.name}
-                                    className="w-12 h-12 object-cover rounded"
-                                />
-                                <div className="flex-1 px-2">
-                                    <p className="text-sm">{item.name}</p>
-                                    <p className="text-sm font-bold">{item.price} €</p>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <button
-                                        onClick={() => removeFromCart(item)}
-                                        className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                    >
-                                        -
-                                    </button>
-                                    <span>{quantity}</span>
-                                    <button
-                                        onClick={() => addToCart(item)}
-                                        className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                <div className="w-1/4 sticky top-28 h-[80vh] overflow-y-auto bg-gray-800 p-2 rounded-lg flex flex-col justify-between shadow-lg">
+                    {/* Top section - Title and Clear Cart */}
+                    <div>
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-lg font-semibold">Cart</h2>
+                            <button
+                                onClick={clearCart}
+                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                            >
+                                Clear
+                            </button>
+                        </div>
 
+                        {Object.values(cart).length === 0 ? (
+                            <p className="text-gray-400">Your cart is empty</p>
+                        ) : (
+                            <>
+                                {Object.values(cart).map(({ item, quantity }) => (
+                                    <div key={item.id} className="flex items-center justify-between mb-2">
+                                        <img
+                                            src={item.image || BACKDROP_URL}
+                                            alt={item.name}
+                                            className="w-16 h-16 object-cover rounded"
+                                        />
+                                        <div className="flex-1 px-2">
+                                            <p className="text-sm">{item.name}</p>
+                                            <p className="text-sm font-bold">{item.price} €</p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                onClick={() => removeFromCart(item)}
+                                                className="bg-gray-700 px-2 rounded hover:bg-gray-600"
+                                            >
+                                                -
+                                            </button>
+                                            <span>{quantity}</span>
+                                            <button
+                                                onClick={() => addToCart(item)}
+                                                className="bg-gray-700 px-2 rounded hover:bg-gray-600"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div className="mt-4 font-bold">
+                                    Total: {cartFinalPrice.toFixed(2)} €
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Bottom section - Order button */}
+                    <div className="mt-4">
+                        <button
+                            onClick={() => alert("Order placed!")} // replace with your order logic
+                            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                            disabled={Object.values(cart).length === 0} // disable if cart is empty
+                        >
+                            Order
+                        </button>
+                    </div>
                 </div>
+
 
             </div>
 

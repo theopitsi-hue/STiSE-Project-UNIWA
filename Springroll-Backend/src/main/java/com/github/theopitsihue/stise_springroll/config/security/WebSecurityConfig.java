@@ -59,7 +59,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/login",
                                 "/register",
                                 "/api/account/auth/**",
-                                "/api/stores/**"
+                                "/api/stores/**",
+                                "/api/cart/**"
                         )
                         .permitAll()  // allow login/signup endpoints
                         .anyRequest().authenticated()
