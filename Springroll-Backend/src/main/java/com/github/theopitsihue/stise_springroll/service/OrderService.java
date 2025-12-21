@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 @Transactional(rollbackOn = Exception.class)
@@ -36,6 +38,7 @@ public class OrderService {
     }
 
     public Order create(@NotNull Order entity){
+        entity.setCreatedAt(LocalDateTime.now());
         return orderRepo.save(entity);
     }
 

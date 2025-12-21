@@ -1,13 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import SharedUrl from "../../api/sharedUrl";
 
-// Placeholder images
-const BACKDROP_URL =
-    "https://cdn.pixabay.com/photo/2015/11/06/15/04/bamboo-1028699_1280.jpg";
-const ICON_URL =
-    "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngarts.com%2Ffiles%2F10%2FCircle-PNG-Transparent-Image.png&f=1&nofb=1&ipt=75453769b9e44f72b538b29c8eaddfd56aecf437a0e17737e515f35a8f1d44d5";
-
-const CART_MOD_URL = "http://localhost:8080/api/cart/mod";
+const CART_MOD_URL = SharedUrl.CART + "/mod";
 
 const StoreDetail = () => {
     const { slug } = useParams();
@@ -18,14 +13,11 @@ const StoreDetail = () => {
     const [cart, setCart] = useState({});
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
 
-    const marqueeRef = useRef(null);
-
-    const HEADER_HEIGHT = 64;
-    const MARQUEE_HEIGHT = 40;
-    const HEADER_TOTAL = HEADER_HEIGHT + MARQUEE_HEIGHT;
+    const [adreses, setAdresses] = useState([]);
+    const [selectedAdress, setSelAdresses] = useState([]);
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/stores/${slug}`, { credentials: "include" })
+        fetch(`${SharedUrl.STORES}/${slug}`, { credentials: "include" })
             .then((res) => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
@@ -43,6 +35,41 @@ const StoreDetail = () => {
                 console.error(err);
                 navigate("/stores", { replace: true });
             });
+
+        fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then((data) => {
+                if (!data) {
+                    return;
+                }
+                const updatedCart = {};
+
+                data.items.forEach((ci) => {
+                    updatedCart[ci.itemId] = {
+                        item: {
+                            id: ci.itemId,
+                            name: ci.name,
+                            price: ci.price,
+                            image: ci.image || SharedUrl.P_BACKDROP_URL,
+                        },
+                        quantity: ci.quantity,
+                    };
+                });
+
+                setCart(updatedCart);
+
+                setCartFinalPrice(data.finalPrice);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+
+        //todo: fetch adresses
+        setAdresses(["test1", "test2"])
+        //setSelAdresses()
     }, [slug, navigate]);
 
     if (loading)
@@ -72,7 +99,7 @@ const StoreDetail = () => {
                         id: ci.itemId,
                         name: ci.name,
                         price: ci.price,
-                        image: ci.image || BACKDROP_URL,
+                        image: ci.image || SharedUrl.P_BACKDROP_URL,
                     },
                     quantity: ci.quantity,
                 };
@@ -85,6 +112,13 @@ const StoreDetail = () => {
         }
     };
 
+    const handlePay = () => {
+        if (cartFinalPrice > 0) {
+            navigate("/payment", { state: { cart, cartFinalPrice } });
+
+        }
+    };
+
     const addToCart = (item) => modifyCartOnServer(item.id, 1);
     const removeFromCart = (item) => modifyCartOnServer(item.id, -1);
     const clearCart = () => modifyCartOnServer(null, 0, true);
@@ -92,46 +126,57 @@ const StoreDetail = () => {
     return (
         <div
             className="bg-gray-900 text-white w-full y-full"
-            style={{ paddingTop: `${HEADER_TOTAL}px` }}
+            style={{ paddingTop: "64px" }}
         >
             {/* Navbar */}
-            <div
-                className="w-full bg-gray-800 shadow-md px-8 py-3 flex items-center justify-between fixed top-0 z-30"
-                style={{ height: `${HEADER_HEIGHT}px` }}
-            >
+            <div className="w-full bg-gray-800 shadow-md px-8 py-4 flex items-center justify-between fixed top-0 z-30 h-14">
+                {/* Logo button */}
                 <button
                     onClick={() => navigate("/stores")}
-                    className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
+                    className="flex items-center gap-2"
                 >
-                    Back to Stores
+                    <img
+                        src={SharedUrl.SR_LOGO || SharedUrl.P_ICON_URL}
+                        alt="Logo"
+                        className="w-13 h-12"
+                    />
+                    <span className="text-white font-semibold text-lg">Springroll Express</span>
                 </button>
-                <h1 className="text-xl font-semibold">{store?.name || "Store"}</h1>
-            </div>
 
-            {/* Marquee */}
-            <div
-                className="w-full fixed z-20 overflow-hidden bg-gradient-to-t from-gray-900 to-green-700 py-2"
-                style={{ top: `${HEADER_HEIGHT}px`, height: `${MARQUEE_HEIGHT}px` }}
-            >
-                <div className="flex whitespace-nowrap animate-marquee" ref={marqueeRef}>
-                    <span className="text-white mx-4">
-                        Welcome to {store?.name}! Enjoy our fresh items and daily specials! Free delivery
-                        on orders over 20€!
-                    </span>
-                    <span className="text-white mx-4">
-                        Welcome to {store?.name}! Enjoy our fresh items and daily specials! Free delivery
-                        on orders over 20€!
-                    </span>
+                {/* Address selection field */}
+                <select
+                    value={selectedAdress || "Set Delivery Adress"}
+                    //onChange={(e) => setSelectedAddress(e.target.value)}
+                    className="px-2 py-2 rounded-xl bg-gray-700 text-white outline-none focus:ring-2 focus:ring-green-400"
+                >
+                    <option value="" disabled>Select your address</option>
+                    {adreses.map((addr, idx) => (
+                        <option key={idx} value={addr}>{addr}</option>
+                    ))}
+                </select>
+
+                {/* Other navbar items */}
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate("/")}
+                        className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
+                    >
+                        Log Out
+                    </button>
                 </div>
             </div>
 
             {/* Banner */}
             <div className="w-full relative">
-                <img src={BACKDROP_URL} alt="Banner" className="w-full h-1/2 relative object-cover" />
+                <img src={store?.banner || SharedUrl.P_BACKDROP_URL}
+                    alt="Banner" className="w-full h-32 relative object-cover"
+                    style={{ height: "138px", bottom: "20px" }} // original 128px + 10px
+                />
                 <img
-                    src={ICON_URL}
+                    src={store?.icon || SharedUrl.P_ICON_URL}
                     alt="Store Logo"
                     className="absolute -bottom-16 left-7 w-32 h-32 rounded-full border-4 border-white"
+
                 />
             </div>
 
@@ -139,7 +184,7 @@ const StoreDetail = () => {
             <div className="pt-2 px-44">
                 <h1 className="text-xl font-semibold leading-[1]">{store?.name}</h1>
                 <p className="text-gray-300 mt-3 leading-[1]">
-                    Fresh and delicious items curated just for you!
+                    {store?.description || "Placeholder Description Text"}
                 </p>
             </div>
 
@@ -151,7 +196,7 @@ const StoreDetail = () => {
                 {/* Left Sidebar - Categories */}
                 <div
                     className="sticky bg-gray-900 pr-1 sticky top-28 h-[80vh]"
-                    style={{ top: `${HEADER_TOTAL}px` }}
+                    style={{ top: "64px" }}
                 >
                     {store?.itemGroups?.map((group) => (
                         <button
@@ -185,7 +230,7 @@ const StoreDetail = () => {
                                     className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
                                 >
                                     <img
-                                        src={item.image || BACKDROP_URL}
+                                        src={item.image || SharedUrl.P_BACKDROP_URL}
                                         alt={item.name}
                                         className="h-48 w-full object-cover"
                                     />
@@ -197,7 +242,7 @@ const StoreDetail = () => {
                                                 </h3>
                                                 <p className="mt-2 font-bold leading-[1]">{item.price} €</p>
                                             </div>
-                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || ""}</p>
+                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || "placeholder item description because i cant think of anything to add so please be patient ok? ok"}</p>
                                         </div>
                                         <button
                                             onClick={() => addToCart(item)}
@@ -214,7 +259,7 @@ const StoreDetail = () => {
                 {/* Right Sidebar - Cart */}
                 <div
                     className="sticky bg-gray-800 p-2 top-28 h-[80vh] rounded-lg flex flex-col shadow-lg overflow-hidden w-105"
-                    style={{ top: `${HEADER_TOTAL}px` }}
+                    style={{ top: "64px" }}
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2 flex-shrink-0">
@@ -235,7 +280,7 @@ const StoreDetail = () => {
                             Object.values(cart).map(({ item, quantity }) => (
                                 <div key={item.id} className="flex items-center justify-between mb-2">
                                     <img
-                                        src={item.image || BACKDROP_URL}
+                                        src={item.image || SharedUrl.P_BACKDROP_URL}
                                         alt={item.name}
                                         className="w-16 h-16 object-cover rounded"
                                     />
@@ -269,7 +314,7 @@ const StoreDetail = () => {
                     {/* Footer - always visible order button */}
                     <div className="mt-2 flex-shrink-0">
                         <button
-                            onClick={() => alert("Order placed!")}
+                            onClick={handlePay}
                             className="w-full bg-green-600 text-white underline bold py-2 rounded hover:bg-green-800"
                             disabled={Object.values(cart).length === 0}
                         >
@@ -280,17 +325,6 @@ const StoreDetail = () => {
 
 
             </div>
-
-            <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          display: inline-flex;
-          animation: marquee 15s linear infinite;
-        }
-      `}</style>
         </div>
     );
 };

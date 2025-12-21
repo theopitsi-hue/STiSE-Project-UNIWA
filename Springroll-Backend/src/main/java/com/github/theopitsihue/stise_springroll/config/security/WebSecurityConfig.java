@@ -60,7 +60,8 @@ public class WebSecurityConfig {
                                 "/register",
                                 "/api/account/auth/**",
                                 "/api/stores/**",
-                                "/api/cart/**"
+                                "/api/cart/**",
+                                "/images/**"
                         )
                         .permitAll()  // allow login/signup endpoints
                         .anyRequest().authenticated()

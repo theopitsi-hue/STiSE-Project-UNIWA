@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
+import SharedUrl from '../../api/sharedUrl';
 
 
 const Login = () => {
@@ -67,76 +68,121 @@ const Login = () => {
   }
 
   return (
-    <div className="w-full max-w-[480px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6 relative">
+    <div
+      className="w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${SharedUrl.SR_BANNER})` }}
+    >
+      {/* Slight black overlay */}
+      <div className="absolute inset-0 bg-black/25 z-0"></div>
 
-      {/* Popup */}
-      {showPopup && (
-        <div className="fixed top-4 right-4 bg-springGreenMedium text-white px-4 py-2 rounded shadow-lg z-50">
-          {popupMessage}
-        </div>
-      )}
 
-      {/* Header section */}
-      <div className="flex justify-center mb-4">
-        <h2 className="text-3xl font-semibold text-center text-springOrange">
-          {isLoginMode ? "Login" : "Sign Up"}
-        </h2>
-      </div>
-
-      {/* Toggle Buttons */}
-      <div className="relative flex h-12 mb-6 border border-springOrange rounded-full overflow-hidden">
-        <button onClick={() => setIsLoginMode(true)}
-          className={`w-1/2 text-lg font-medium transition-all z-10 ${isLoginMode ? "text-white" : "text-springOrange"}`}>
-          Login
-        </button>
-        <button onClick={() => setIsLoginMode(false)}
-          className={`w-1/2 text-lg font-medium transition-all z-10 ${!isLoginMode ? "text-white" : "text-springOrange"}`}>
-          Sign Up
-        </button>
-        <div className={`absolute top-0 h-full w-1/2 rounded-full bg-springGreenMedium transition-all duration-300 ${isLoginMode ? "left-0" : "left-1/2"}`}>
+      {/* Logo + Text above login card */}
+      <div className="flex items-center z-10">
+        <img
+          src={SharedUrl.SR_LOGO}
+          alt="Logo"
+          className="w-64 h-64 object-contain"
+        />
+        <div>
+          <h1 className="text-4xl font-bold text-white">
+            Springroll Express
+          </h1>
+          <h2 className="text-xl italic text-green-400">
+            Your #1 space to eat!
+          </h2>
         </div>
       </div>
 
-      {/* Form Section */}
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        {!isLoginMode &&
-          <input type="text" placeholder="Username" className="w-full p-3 border-2 border-gray-300 outline-none placeholder-gray-400"
-            value={username} onChange={(e) => setUsername(e.target.value)} />
-        }
+      {/* Login card */}
+      <div className="w-full max-w-[480px] p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6 relative border-2 border-green-800">
 
-        <input type="email" placeholder="Email address" className="w-full p-3 border-2 border-gray-300 outline-none placeholder-gray-400"
-          value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" className="w-full p-3 border-2 border-gray-300 outline-none placeholder-gray-400"
-          value={password} onChange={(e) => setPassword(e.target.value)} />
-        {!isLoginMode &&
-          <input type="password" placeholder="Confirm Password" className="w-full p-3 border-2 border-gray-300 outline-none placeholder-gray-400" />
-        }
-
-        {isLoginMode &&
-          <div className="text-right">
-            <p className="text-springOrange hover:underline cursor-pointer">
-              Forgot password?
-            </p>
+        {/* Popup */}
+        {showPopup && (
+          <div className="fixed top-4 right-4 bg-springGreenMedium text-white px-4 py-2 rounded shadow-lg z-50">
+            {popupMessage}
           </div>
-        }
+        )}
 
-        {/* Submit Button */}
-        <button className="w-full p-3 bg-springGreenMedium text-white rounded-full text-lg font-medium">
-          {isLoginMode ? "Login" : "Sign Up"}
-        </button>
+        {/* Header section */}
+        <div className="flex justify-center mb-4">
+          <h2 className="text-3xl font-semibold text-center text-orange-300">
+            {isLoginMode ? "Login" : "Sign Up"}
+          </h2>
+        </div>
 
-        {/* Switch Mode Link */}
-        <p className="text-center text-springRed">
-          {isLoginMode ? "Don't have an account? " : "Already have an account? "}
-          <a
-            href="#"
-            onClick={e => { e.preventDefault(); setIsLoginMode(!isLoginMode); }}
-            className="text-springOrange hover:underline">
-            {isLoginMode ? "Sign Up" : "Login"}
-          </a>
-        </p>
-      </form>
+        {/* Toggle Buttons */}
+        <div className="relative flex h-12 mb-6 border-2 border-green-900 rounded-full overflow-hidden">
+          <button onClick={() => setIsLoginMode(true)}
+            className={`w-1/2 text-lg font-medium transition-all z-10 ${isLoginMode ? "text-white" : "text-orange-300"}`}>
+            Login
+          </button>
+          <button onClick={() => setIsLoginMode(false)}
+            className={`w-1/2 text-lg font-medium transition-all z-10 ${!isLoginMode ? "text-white" : "text-orange-300"}`}>
+            Sign Up
+          </button>
+          <div className={`absolute top-0 h-full w-1/2 rounded-full bg-springGreenMedium transition-all duration-300 ${isLoginMode ? "left-0" : "left-1/2"}`}>
+          </div>
+        </div>
+
+        {/* Form Section */}
+        <form className="space-y-2" onSubmit={handleSubmit}>
+          {!isLoginMode &&
+            <input
+              type="text"
+              placeholder="Username"
+              className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          }
+          <input
+            type="email"
+            placeholder="Email address"
+            className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {!isLoginMode &&
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
+            />
+          }
+
+          {isLoginMode &&
+            <div className="text-right">
+              <p className="text-orange-300 hover:underline cursor-pointer">
+                Forgot password?
+              </p>
+            </div>
+          }
+
+          <button className="w-full p-3 bg-springGreenMedium text-white rounded-full text-lg font-medium">
+            {isLoginMode ? "Login" : "Sign Up"}
+          </button>
+
+          <p className="text-center text-white">
+            {isLoginMode ? "Don't have an account? " : "Already have an account? "}
+            <a
+              href="#"
+              onClick={e => { e.preventDefault(); setIsLoginMode(!isLoginMode); }}
+              className="text-orange-300 hover:underline">
+              {isLoginMode ? "Sign Up" : "Login"}
+            </a>
+          </p>
+        </form>
+      </div>
+
     </div>
+
   );
 }
 

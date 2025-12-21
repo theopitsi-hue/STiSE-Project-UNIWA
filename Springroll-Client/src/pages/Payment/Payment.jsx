@@ -1,137 +1,169 @@
-import React, { useState } from "react";
-import productA from "./souvlaki.png";
+import React, { useState, useEffect } from "react";
+import SharedUrl from "../../api/sharedUrl";
 
 const Payment = () => {
     const [method, setMethod] = useState("card");
-    const [cardName, setCardName] = useState("");
-    const [cardNumber, setCardNumber] = useState("");
-    const [expiry, setExpiry] = useState("");
-    const [cvv, setCvv] = useState("");
+    const [cart, setCart] = useState({});
+    const [cartFinalPrice, setCartFinalPrice] = useState(0);
 
-    const [error, setError] = useState("");
+    useEffect(() => {
+        fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return res.json();
+            })
+            .then((data) => {
+                if (!data) return;
 
-    //Sample cart items
-    const [cart, setCart] = useState([
-        { id: 1, name: "Springrolls yum yum", price: 8.30, quantity: 1, img: productA },
-        { id: 2, name: "Souvlakara", price: 3.80, quantity: 2, img: "https://via.placeholder.com/40" },
-    ]);
+                const updatedCart = {};
+                data.items.forEach((ci) => {
+                    updatedCart[ci.itemId] = {
+                        item: {
+                            id: ci.itemId,
+                            name: ci.name,
+                            price: ci.price,
+                            image: ci.image || SharedUrl.P_BACKDROP_URL,
+                        },
+                        quantity: ci.quantity,
+                    };
+                });
 
-    const incrementQuantity = (id) => {
-        setCart(cart.map(item => item.id === id ? { ...item, quantity: item.quantity + 1 } : item));
+                setCart(updatedCart);
+                setCartFinalPrice(data.finalPrice);
+            })
+            .catch((err) => console.error(err));
+    }, []);
+
+    const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
+        try {
+            const response = await fetch(SharedUrl.CART + "/modify", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ itemId, change, clear }),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("Cart modification error:", errText);
+                return;
+            }
+
+            const data = await response.json();
+            const updatedCart = {};
+            data.items.forEach((ci) => {
+                updatedCart[ci.itemId] = {
+                    item: {
+                        id: ci.itemId,
+                        name: ci.name,
+                        price: ci.price,
+                        image: ci.image || SharedUrl.P_BACKDROP_URL,
+                    },
+                    quantity: ci.quantity,
+                };
+            });
+
+            setCart(updatedCart);
+            setCartFinalPrice(data.finalPrice);
+        } catch (err) {
+            console.error("Cart modification exception:", err);
+        }
     };
 
-    const decrementQuantity = (id) => {
-        setCart(cart.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item));
-    };
-
-    const removeItem = (id) => {
-        setCart(cart.filter(item => item.id !== id));
-    };
-
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2);
+    const addToCart = (item) => modifyCartOnServer(item.id, 1);
+    const removeFromCart = (item) => modifyCartOnServer(item.id, -1);
+    const clearCart = () => modifyCartOnServer(null, 0, true);
 
     return (
-        <div className="w-full max-w-[900px] mx-auto p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg flex gap-6">
+        <div className="relative min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${SharedUrl.SR_CHECKOUT_BANNER})` }}>
+            {/* Full page black overlay */}
+            <div className="absolute inset-0 bg-black/70 z-0"></div>
 
-            {/*LEFT SIDE:  Header */}
-            <div className="flex-1 space-y-6">
-                <h2 className="text-3xl font-semibold text-springOrange text-center mb-6">
-                    Payment Method
-                </h2>
-
-                {/* Payment Method Tabs */}
-                <div className="flex bg-[#1a1a1a] rounded-lg overflow-hidden border border-springOrange/40">
-                    {["card", "paypal", "cash"].map((m) => (
-                        <button
-                            key={m}
-                            onClick={() => setMethod(m)}
-                            className={`w-full py-3 font-semibold transition-colors ${method === m
-                                ? "bg-springGreenMedium text-white"
-                                : "text-gray-400 hover:text-white"}`}
-                        >
-                            {m.toUpperCase()}
-                        </button>
-                    ))}
+            <div className="relative z-10 flex flex-col items-center w-full">
+                {/* Logo + Text */}
+                <div className="flex items-center my-6">
+                    <img src={SharedUrl.SR_LOGO} alt="Logo" className="w-64 h-64 object-contain" />
+                    <div>
+                        <h1 className="text-4xl font-bold text-white">Springroll Express</h1>
+                        <h2 className="text-xl italic text-green-400">Thank you for shopping with us!</h2>
+                    </div>
                 </div>
 
-                {/* CARD FORM */}
-                {method === "card" && (
-                    <div className="space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Cardholder Name"
-                            className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
-                        <input
-                            type="text"
-                            placeholder="Card Number"
-                            className="w-full p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
-                        <div className="flex gap-4">
-                            <input
-                                type="text"
-                                placeholder="MM/YY"
-                                className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
-                            <input
-                                type="password"
-                                placeholder="CVV"
-                                className="w-1/2 p-3 bg-[#2d2d2d] text-white rounded-lg outline-none" />
+                <div className="flex flex-col lg:flex-row w-full max-w-[1200px] p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg gap-6">
+                    {/* Left: Payment Method */}
+                    <div className="flex-1 space-y-6">
+                        <h2 className="text-3xl font-semibold text-springOrange text-center mb-6">Payment Method</h2>
+
+                        <div className="flex bg-[#1a1a1a] rounded-lg overflow-hidden border border-springOrange/40">
+                            {["card", "paypal", "cash"].map((m) => (
+                                <button
+                                    key={m}
+                                    onClick={() => setMethod(m)}
+                                    className={`w-full py-3 font-semibold transition-colors ${method === m ? "bg-springGreenMedium text-white" : "text-gray-400 hover:text-white"}`}
+                                >
+                                    {m.toUpperCase()}
+                                </button>
+                            ))}
                         </div>
-                        <button className="w-full p-3 bg-springGreenMedium text-white rounded-lg font-bold">
-                            Pay Now
-                        </button>
-                    </div>
-                )}
 
-                {/* PAYPAL */}
-                {method === "paypal" && (
-                    <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
-                        <p>You will be redirected to PayPal to complete your payment.</p>
-                        <button className="w-full mt-4 p-3 bg-springGreenMedium text-white rounded-lg font-bold">
-                            Continue to PayPal
-                        </button>
-                    </div>
-                )}
-                {/* CASH */}
-                {method === "cash" && (
-                    <div className="p-4 bg-[#2d2d2d] rounded-lg text-white">
-                        <p className="mb-2 font-semibold text-springOrange">
-                            Cash Payment
-                        </p>
-                        <p>You will pay the driver upon delivery. Be kind and leave tips yeah?</p>
-                        <button className="w-full mt-4 p-3 bg-springGreenMedium text-white rounded-lg font-bold">
-                            Confirm Order
-                        </button>
-                    </div>
-                )}
-            </div>
+                        {method === "card" && (
+                            <div className="space-y-4">
+                                <p className="mb-2 text-xl font-semibold text-springOrange">Card Payment</p>
+                                <input type="text" placeholder="Cardholder Name" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
+                                <input type="text" placeholder="Card Number" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
+                                <div className="flex gap-4">
+                                    <input type="text" placeholder="MM/YY" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
+                                    <input type="password" placeholder="CVV" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
+                                </div>
+                            </div>
+                        )}
 
-            {/* RIGHT SIDE: CART */}
-            <div className="w-80 bg-[#1a1a1a] p-4 rounded-lg space-y-4 flex-shrink-0">
-                <h3 className="text-xl font-semibold text-springOrange mb-4 text-center">
-                    Your Cart
-                </h3>
-                {cart.length === 0 ? (
-                    <p className="text-gray-400 text-center">Your cart is empty</p>
-                ) : (
-                    cart.map(item => (
-                        <div key={item.id} className="flex justify-between items-center gap-2">
-                            <img src={item.img} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                            <div>
-                                <p className="text-white font-semibold">{item.name}</p>
-                                <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                        {method === "paypal" && (
+                            <div className="p-4 bg-gray-800 rounded-lg text-white">
+                                <p className="mb-2 text-xl font-semibold text-springOrange">Paypal Payment</p>
+                                <p>You will be redirected to PayPal to complete your payment.</p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button onClick={() => decrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">-</button>
-                                <span className="text-white">{item.quantity}</span>
-                                <button onClick={() => incrementQuantity(item.id)} className="px-2 py-1 bg-gray-700 text-white rounded">+</button>
-                                <button onClick={() => removeItem(item.id)} className="ml-2 text-red-500 font-bold">×</button>
+                        )}
+
+                        {method === "cash" && (
+                            <div className="p-4 bg-gray-800 rounded-lg text-white">
+                                <p className="mb-2 text-xl font-semibold text-springOrange">Cash Payment</p>
+                                <p>You will pay the driver upon delivery. Be kind and leave tips yeah?</p>
                             </div>
+                        )}
+                    </div>
+
+                    {/* Right: Cart */}
+                    <div className="w-full lg:w-1/2 bg-gray-800 p-4 rounded-lg flex flex-col text-gray-300">
+                        <h3 className="text-3xl font-semibold text-springOrange mb-4 text-center">Your Cart</h3>
+                        <div className="flex-1 overflow-y-auto max-h-[500px]">
+                            {Object.keys(cart).length === 0 ? (
+                                <p className="text-gray-400 text-center">Your cart is empty</p>
+                            ) : (
+                                Object.values(cart).map(({ item, quantity }) => (
+                                    <div key={item.id} className="flex items-center justify-between mb-2">
+                                        <img src={item.image || SharedUrl.P_BACKDROP_URL} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                                        <div className="flex-1 px-2">
+                                            <p className="text-xl text-gray-200 font-semibold leading-[1] m-1">{item.name}</p>
+                                            <p className="text-xl font-bold leading-[1] m-1">{item.price} €</p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <button onClick={() => removeFromCart(item)} className="bg-gray-700 px-2 rounded hover:bg-gray-600">-</button>
+                                            <span>{quantity}</span>
+                                            <button onClick={() => addToCart(item)} className="bg-gray-700 px-2 rounded hover:bg-gray-600">+</button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
-                    ))
-                )}
 
-                <div className="border-t border-gray-700 pt-2 flex justify-between text-white font-bold">
-                    <span>Total:</span>
-                    <span>${total}</span>
+                        <div className="border-t text-xl border-gray-700 pt-2 flex justify-between text-white font-bold mt-4">
+                            <span>Total:</span>
+                            <span>${cartFinalPrice}</span>
+                        </div>
+
+                        <button className="w-full p-3 bg-springGreenMedium text-white rounded-lg font-bold mt-4">Pay Now</button>
+                    </div>
                 </div>
             </div>
         </div>

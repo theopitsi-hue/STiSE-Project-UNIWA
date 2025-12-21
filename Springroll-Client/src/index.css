@@ -45,3 +45,47 @@ code {
   scrollbar-width: thin;
   scrollbar-color: #38a169 #2d3748;
 }
+
+/* Hide native checkbox */
+.themed-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Custom checkbox box */
+.checkbox-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #6b7280;
+  /* gray-500 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+/* Checked state */
+.themed-checkbox:checked+.checkbox-box {
+  background-color: #22c55e;
+  /* green-500 */
+  border-color: #22c55e;
+}
+
+/* Checkmark */
+.checkbox-box::after {
+  content: "";
+  width: 6px;
+  height: 10px;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  opacity: 0;
+}
+
+/* Show checkmark when checked */
+.themed-checkbox:checked+.checkbox-box::after {
+  opacity: 1;
+}
