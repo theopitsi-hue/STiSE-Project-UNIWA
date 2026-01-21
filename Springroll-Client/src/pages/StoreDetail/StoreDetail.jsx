@@ -7,14 +7,16 @@ const CART_MOD_URL = SharedUrl.CART + "/mod";
 const StoreDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
+
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("");
     const [cart, setCart] = useState({});
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
 
-    const [adreses, setAdresses] = useState([]);
-    const [selectedAdress, setSelAdresses] = useState([]);
+    const [addresses, setAddresses] = useState([]);
+    const [selectedAddress, setSelectedAddress] = useState("");
+    const [customAddress, setCustomAddress] = useState("");
 
     useEffect(() => {
         fetch(`${SharedUrl.STORES}/${slug}`, { credentials: "include" })
@@ -28,7 +30,9 @@ const StoreDetail = () => {
                     return;
                 }
                 setStore(data);
-                if (data.itemGroups?.length) setActiveCategory(data.itemGroups[0].name);
+                if (data.itemGroups?.length) {
+                    setActiveCategory(data.itemGroups[0].name);
+                }
                 setLoading(false);
             })
             .catch((err) => {
@@ -60,7 +64,6 @@ const StoreDetail = () => {
                 });
 
                 setCart(updatedCart);
-
                 setCartFinalPrice(data.finalPrice);
             })
             .catch((err) => {
@@ -68,12 +71,8 @@ const StoreDetail = () => {
             });
 
         //todo: fetch adresses
-        setAdresses(["test1", "test2"])
-        //setSelAdresses()
+        setAddresses(["test1", "test2"]);
     }, [slug, navigate]);
-
-    if (loading)
-        return <p className="text-center mt-8 text-white">Loading store...</p>;
 
     const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
         try {
@@ -84,11 +83,7 @@ const StoreDetail = () => {
                 body: JSON.stringify({ itemId, change, clear }),
             });
 
-            if (!response.ok) {
-                const errText = await response.text();
-                console.error("Cart modification error:", errText);
-                return;
-            }
+            if (!response.ok) return;
 
             const data = await response.json();
             const updatedCart = {};
@@ -112,20 +107,35 @@ const StoreDetail = () => {
         }
     };
 
-    const handlePay = () => {
-        if (cartFinalPrice > 0) {
-            navigate("/payment", { state: { cart, cartFinalPrice } });
+    const addToCart = item => modifyCartOnServer(item.id, 1);
+    const removeFromCart = item => modifyCartOnServer(item.id, -1);
+    const clearCart = () => modifyCartOnServer(null, 0, true);
 
+    const handlePay = () => {
+        const finalAddress = customAddress.trim() || selectedAddress;
+
+        if (!finalAddress) {
+            alert("Please select or enter a delivery address");
+            return;
+        }
+
+        if (cartFinalPrice > 0) {
+            navigate("/payment", {
+                state: {
+                    cart,
+                    cartFinalPrice,
+                    address: finalAddress,
+                },
+            });
         }
     };
 
-    const addToCart = (item) => modifyCartOnServer(item.id, 1);
-    const removeFromCart = (item) => modifyCartOnServer(item.id, -1);
-    const clearCart = () => modifyCartOnServer(null, 0, true);
+    if (loading)
+        return <p className="text-center mt-8 text-white">Loading store...</p>;
 
     return (
         <div
-            className="bg-gray-900 text-white w-full y-full"
+            className="bg-gray-900 text-white w-full h-full"
             style={{ paddingTop: "64px" }}
         >
             {/* Navbar */}
@@ -138,45 +148,62 @@ const StoreDetail = () => {
                     <img
                         src={SharedUrl.SR_LOGO || SharedUrl.P_ICON_URL}
                         alt="Logo"
-                        className="w-13 h-12"
+                        className="w-12 h-12"
                     />
                     <span className="text-white font-semibold text-lg">Springroll Express</span>
                 </button>
 
-                {/* Address selection field */}
-                <select
-                    value={selectedAdress || "Set Delivery Adress"}
-                    //onChange={(e) => setSelectedAddress(e.target.value)}
-                    className="px-2 py-2 rounded-xl bg-gray-700 text-white outline-none focus:ring-2 focus:ring-green-400"
-                >
-                    <option value="" disabled>Select your address</option>
-                    {adreses.map((addr, idx) => (
-                        <option key={idx} value={addr}>{addr}</option>
-                    ))}
-                </select>
-
-                {/* Other navbar items */}
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => navigate("/")}
-                        className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
+                {/* Address field */}
+                <div className="flex gap-2">
+                    <select
+                        value={selectedAddress}
+                        disabled={!!customAddress}
+                        onChange={e => {
+                            setSelectedAddress(e.target.value);
+                            setCustomAddress("");
+                        }}
+                        className="px-2 py-2 rounded-xl bg-gray-700 text-white"
                     >
-                        Log Out
-                    </button>
+                        <option value="">Select your address</option>
+                        {addresses.map((addr, idx) => (
+                            <option key={idx} value={addr}>
+                                {addr}
+                            </option>
+                        ))}
+                    </select>
+
+                    <input
+                        type="text"
+                        placeholder="Or enter new address"
+                        value={customAddress}
+                        onChange={e => {
+                            setCustomAddress(e.target.value);
+                            setSelectedAddress("");
+                        }}
+                        className="px-3 py-2 rounded-xl bg-gray-700 text-white"
+                    />
                 </div>
+
+                <button
+                    onClick={() => navigate("/")}
+                    className="bg-green-400 text-black px-4 py-2 rounded"
+                >
+                    Log Out
+                </button>
             </div>
 
             {/* Banner */}
             <div className="w-full relative">
-                <img src={store?.banner || SharedUrl.P_BACKDROP_URL}
-                    alt="Banner" className="w-full h-32 relative object-cover"
+                <img
+                    src={store?.banner || SharedUrl.P_BACKDROP_URL}
+                    alt="Banner"
+                    className="w-full h-32 relative object-cover"
                     style={{ height: "138px", bottom: "20px" }} // original 128px + 10px
                 />
                 <img
                     src={store?.icon || SharedUrl.P_ICON_URL}
                     alt="Store Logo"
                     className="absolute -bottom-16 left-7 w-32 h-32 rounded-full border-4 border-white"
-
                 />
             </div>
 
@@ -322,8 +349,6 @@ const StoreDetail = () => {
                         </button>
                     </div>
                 </div>
-
-
             </div>
         </div>
     );
