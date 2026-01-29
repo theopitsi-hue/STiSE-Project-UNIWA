@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import SharedUrl from "../../api/sharedUrl";
 
+import { useNavigate } from "react-router-dom";
+
 const Payment = () => {
     const [method, setMethod] = useState("card");
     const [cart, setCart] = useState({});
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
@@ -70,10 +73,6 @@ const Payment = () => {
         }
     };
 
-    const addToCart = (item) => modifyCartOnServer(item.id, 1);
-    const removeFromCart = (item) => modifyCartOnServer(item.id, -1);
-    const clearCart = () => modifyCartOnServer(null, 0, true);
-
     return (
         <div className="relative min-h-screen w-full bg-cover bg-center" style={{ backgroundImage: `url(${SharedUrl.SR_CHECKOUT_BANNER})` }}>
             {/* Full page black overlay */}
@@ -108,7 +107,7 @@ const Payment = () => {
 
                         {method === "card" && (
                             <div className="space-y-4">
-                                <p className="mb-2 text-xl font-semibold text-springOrange">Card Payment</p>
+
                                 <input type="text" placeholder="Cardholder Name" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
                                 <input type="text" placeholder="Card Number" className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400" />
                                 <div className="flex gap-4">
@@ -120,49 +119,51 @@ const Payment = () => {
 
                         {method === "paypal" && (
                             <div className="p-4 bg-gray-800 rounded-lg text-white">
-                                <p className="mb-2 text-xl font-semibold text-springOrange">Paypal Payment</p>
                                 <p>You will be redirected to PayPal to complete your payment.</p>
                             </div>
                         )}
 
                         {method === "cash" && (
                             <div className="p-4 bg-gray-800 rounded-lg text-white">
-                                <p className="mb-2 text-xl font-semibold text-springOrange">Cash Payment</p>
                                 <p>You will pay the driver upon delivery. Be kind and leave tips yeah?</p>
                             </div>
                         )}
                     </div>
 
                     {/* Right: Cart */}
-                    <div className="w-full lg:w-1/2 bg-gray-800 p-4 rounded-lg flex flex-col text-gray-300">
-                        <h3 className="text-3xl font-semibold text-springOrange mb-4 text-center">Your Cart</h3>
+                    <div className="w-full lg:w-1/2 bg-gray-800 p-4 rounded-lg flex flex-col text-gray-300 border-2 border-green-800">
                         <div className="flex-1 overflow-y-auto max-h-[500px]">
                             {Object.keys(cart).length === 0 ? (
                                 <p className="text-gray-400 text-center">Your cart is empty</p>
                             ) : (
                                 Object.values(cart).map(({ item, quantity }) => (
-                                    <div key={item.id} className="flex items-center justify-between mb-2">
+                                    <div key={item.id} className="flex items-center justify-between mb-2 p-3 m-0 bg-gray-900 rounded ">
                                         <img src={item.image || SharedUrl.P_BACKDROP_URL} alt={item.name} className="w-16 h-16 object-cover rounded" />
                                         <div className="flex-1 px-2">
                                             <p className="text-xl text-gray-200 font-semibold leading-[1] m-1">{item.name}</p>
                                             <p className="text-xl font-bold leading-[1] m-1">{item.price} €</p>
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <button onClick={() => removeFromCart(item)} className="bg-gray-700 px-2 rounded hover:bg-gray-600">-</button>
                                             <span>{quantity}</span>
-                                            <button onClick={() => addToCart(item)} className="bg-gray-700 px-2 rounded hover:bg-gray-600">+</button>
                                         </div>
                                     </div>
                                 ))
                             )}
                         </div>
 
-                        <div className="border-t text-xl border-gray-700 pt-2 flex justify-between text-white font-bold mt-4">
+                        <div className="border-t text-xl p-3 border-gray-700 pt-2 flex justify-between text-white font-bold mt-2">
                             <span>Total:</span>
-                            <span>${cartFinalPrice}</span>
+                            <span>{cartFinalPrice}€</span>
                         </div>
 
-                        <button className="w-full p-3 bg-springGreenMedium text-white rounded-lg font-bold mt-4">Pay Now</button>
+                        <button className="w-full p-3 bg-green-600 text-white rounded-lg font-bold mt-[2] hover:bg-green-800 transition">Pay Now</button>
+                        <button
+                            className="w-full p-3 bg-gray-500 text-white rounded-lg font-bold mt-2 hover:bg-springOrange transition"
+                            onClick={() => navigate("/stores")}
+                        >
+                            Forgot Something?
+                        </button>
+
                     </div>
                 </div>
             </div>

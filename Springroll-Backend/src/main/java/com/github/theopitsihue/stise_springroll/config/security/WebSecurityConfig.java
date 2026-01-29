@@ -3,6 +3,7 @@ package com.github.theopitsihue.stise_springroll.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -11,6 +12,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,25 +53,28 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, RestAuthenticationEntryPoint authEntryPoint) throws Exception {
         http
-                .cors(Customizer.withDefaults())  // ENABLE CORS
-                .csrf(AbstractHttpConfigurer::disable)  // disable CSRF for dev
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login",
-                                "/register",
-                                "/api/account/auth/**",
-                                "/api/stores/**",
-                                "/api/cart/**",
+                .cors(Customizer.withDefaults()) // uses your CorsConfig
+                .csrf(AbstractHttpConfigurer::disable) // safe for SPA/API
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll() // allow preflight
+                        .requestMatchers(
+                                "/api/account/auth/login",
+                                "/api/account/auth/register",
                                 "/images/**"
-                        )
-                        .permitAll()  // allow login/signup endpoints
+                        ).permitAll()
                         .anyRequest().authenticated()
-                );
-
+                )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(

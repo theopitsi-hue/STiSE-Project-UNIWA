@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.resource;
 
+import com.github.theopitsihue.stise_springroll.config.security.CustomUserDetails;
 import com.github.theopitsihue.stise_springroll.entity.Item;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
@@ -11,6 +12,7 @@ import com.github.theopitsihue.stise_springroll.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -35,17 +37,13 @@ public class CartResource {
     }
 
     @GetMapping("/get")
-    public ResponseEntity<?> getCart(HttpSession session) {
-        String email = (String) session.getAttribute("user");
-
-        if (email == null) {
+    public ResponseEntity<?> getCart(@AuthenticationPrincipal CustomUserDetails userIn, HttpSession session) {
+        if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User not logged in"));
         }
 
-        // user is logged in
-        // load User entity using email
-        Optional<User> user = userService.findByEmail(email);
+        Optional<User> user = Optional.ofNullable(userService.getUserByUsername(userIn.getUsername()));
 
         if (user.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -60,17 +58,16 @@ public class CartResource {
     }
 
     @PostMapping("/mod")
-    public ResponseEntity<?> modifyCart(@RequestBody CartModificationRequest req, HttpSession session) {
-        String email = (String) session.getAttribute("user");
+    public ResponseEntity<?> modifyCart(
+            @AuthenticationPrincipal CustomUserDetails userIn, @RequestBody CartModificationRequest req, HttpSession session) {
 
-        if (email == null) {
+        if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User not logged in"));
         }
 
-        // user is logged in
-        // load User entity using email
-        Optional<User> user = userService.findByEmail(email);
+        // user is logged in, get their data
+        Optional<User> user = Optional.ofNullable(userService.getUserByUsername(userIn.getUsername()));
 
         if (user.isEmpty()){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

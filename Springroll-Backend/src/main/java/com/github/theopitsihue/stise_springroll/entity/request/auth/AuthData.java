@@ -9,4 +9,5 @@ public class AuthData {
     String username;
     boolean success;
     int role;
+
 }

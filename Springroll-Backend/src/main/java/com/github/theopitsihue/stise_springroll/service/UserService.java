@@ -1,8 +1,11 @@
 package com.github.theopitsihue.stise_springroll.service;
 
 import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
+import com.github.theopitsihue.stise_springroll.entity.request.address.UserAddressResponse;
 import com.github.theopitsihue.stise_springroll.entity.request.auth.AuthData;
 import com.github.theopitsihue.stise_springroll.entity.request.auth.SignUpRequest;
+import com.github.theopitsihue.stise_springroll.repository.AddressRepository;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,11 +26,13 @@ import java.util.UUID;
 @Transactional(rollbackOn = Exception.class)
 public class UserService { //business logic
     private final UserRepository userRepo;
+    private final AddressRepository addressRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     //Dependency injection
-    public UserService(UserRepository userRepo, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepo, AddressRepository addressRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepo = userRepo;
+        this.addressRepository = addressRepository;
         passwordEncoder = bCryptPasswordEncoder;
     }
 
@@ -40,6 +46,12 @@ public class UserService { //business logic
 
     public User getUser(UUID id){
         return userRepo.findById(id).orElseThrow(()->new RuntimeException("User with id: "+id+" not found."));
+    }
+    public User getUserByEmail(String email){
+        return userRepo.findByEmail(email).orElseThrow(()->new RuntimeException("User with email: "+email+" not found."));
+    }
+    public User getUserByUsername(String username){
+        return userRepo.findByUsername(username).orElseThrow(()->new RuntimeException("User with username: "+username+" not found."));
     }
 
     public User createUser(User user){
@@ -92,7 +104,44 @@ public class UserService { //business logic
         return true;
     }
 
+    public List<UserAddressResponse> getAddresses(User user) {
+        return user.getAddresses()
+                .stream()
+                .map(a -> new UserAddressResponse(a.getId(), a.getAddress()))
+                .toList();
+    }
+
+    @Transactional
+    public UserAddressResponse addAddress(User user, String address) {
+        User managedUser = userRepo.findById(user.getId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        UserAddress addr = new UserAddress(address);
+        managedUser.addAddress(addr);
+        userRepo.save(managedUser);
+        return new UserAddressResponse(addr.getId(), addr.getAddress());
+    }
+
     public Optional<User> findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
+
+    public boolean removeAddress(User userByUsername, String address) {
+        User managedUser = userRepo.findById(userByUsername.getId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        return managedUser.removeAddress(new UserAddress(address));
+    }
+
+    @Transactional
+    public boolean removeAddressById(UUID userId, Long addressId) {
+        return addressRepository
+                .findByIdAndUser_Id(addressId, userId)
+                .map(addr -> {
+                    addressRepository.delete(addr);
+                    return true;
+                })
+                .orElse(false);
+    }
+
 }

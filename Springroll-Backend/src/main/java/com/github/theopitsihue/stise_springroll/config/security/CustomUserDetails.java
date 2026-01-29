@@ -1,12 +1,17 @@
 package com.github.theopitsihue.stise_springroll.config.security;
 import com.github.theopitsihue.stise_springroll.entity.User;
 
+import com.github.theopitsihue.stise_springroll.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 public class CustomUserDetails implements UserDetails {
 
