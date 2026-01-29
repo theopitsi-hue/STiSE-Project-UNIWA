@@ -13,11 +13,14 @@ const Navbar = () => {
     const [newAddress, setNewAddress] = useState("");
     const [open, setOpen] = useState(false);
 
-    // delete confirmation
     const [confirmDeleteId, setConfirmDeleteId] = useState(null);
     const [confirmDeleteLabel, setConfirmDeleteLabel] = useState("");
 
+    // New state for expandable actions
+    const [actionsOpen, setActionsOpen] = useState(false);
+
     const dropdownRef = useRef(null);
+    const actionsRef = useRef(null); // ref for the actions menu
 
     if (!user) return <p>Loading user...</p>;
 
@@ -44,6 +47,9 @@ const Navbar = () => {
         const handler = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setOpen(false);
+            }
+            if (actionsRef.current && !actionsRef.current.contains(e.target)) {
+                setActionsOpen(false);
             }
         };
         document.addEventListener("mousedown", handler);
@@ -97,11 +103,8 @@ const Navbar = () => {
             });
 
             if (response.status === 204) {
-                // Remove the deleted address
                 const remaining = addresses.filter(a => a.id !== Number(confirmDeleteId));
                 setAddresses(remaining);
-
-                // If the deleted address was selected, select the first one
                 if (selectedAddress === confirmDeleteId) {
                     setSelectedAddress(remaining.length ? remaining[0].id : "");
                 }
@@ -118,7 +121,6 @@ const Navbar = () => {
         }
     };
 
-
     // ---------------- LOGOUT ----------------
     const logout = () => {
         fetch(SharedUrl.API + "/account/auth/logout", {
@@ -129,9 +131,16 @@ const Navbar = () => {
             .finally(() => navigate("/"));
     };
 
+    // ---------------- ACTION BUTTON HANDLER ----------------
+    const handleActionClick = (action) => {
+        console.log("Clicked action:", action);
+        setActionsOpen(false);
+    };
+
     const selectedLabel =
-        Array.isArray(addresses) ? addresses.find(a => a.id === selectedAddress)?.address : [] ||
-            "Select delivery address";
+        Array.isArray(addresses)
+            ? "Delivering To - " + addresses.find(a => a.id === selectedAddress)?.address
+            : "Select delivery address";
 
     return (
         <>
@@ -149,22 +158,18 @@ const Navbar = () => {
                     <span className="text-xl font-semibold">Springroll Express</span>
                 </button>
 
-                <span className="text-xl font-semibold">
-                    User: {user.username}
-                </span>
-
                 {/* ADDRESS DROPDOWN */}
                 <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setOpen(o => !o)}
-                        className="px-4 py-2 rounded-xl bg-gray-700 text-white flex items-center justify-between w-64 focus:ring-2 focus:ring-green-400"
+                        className="px-4 py-2 rounded-xl w-100 bg-gray-700 text-white flex items-center justify-between w-64 focus:ring-2 focus:ring-green-400"
                     >
                         <span className="truncate">{selectedLabel || "Add Delivery Address"}</span>
                         <span>▾</span>
                     </button>
 
                     {open && (
-                        <div className="absolute mt-2 w-64 bg-gray-800 rounded-xl shadow-lg z-40 border-2 border-green-500">
+                        <div className="absolute mt-2 w-100 w-64 bg-gray-800 rounded-xl shadow-lg z-40 border-2 border-green-500">
                             {addresses.filter(addr => addr.id != null).map(addr => (
                                 <div
                                     key={addr.id}
@@ -235,13 +240,47 @@ const Navbar = () => {
                     )}
                 </div>
 
-                {/* LOGOUT */}
-                <button
-                    onClick={logout}
-                    className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
-                >
-                    Log Out
-                </button>
+                {/* EXPANDABLE ACTION BUTTON */}
+                <div className="relative ml-2" ref={actionsRef}>
+                    <button
+                        onClick={() => setActionsOpen(o => !o)}
+                        className="bg-gray-700 w-40 focus:ring-2 focus:ring-green-400 text-white px-2 py-1 rounded hover:bg-gray-700 transition"
+                    >
+                        <div className="flex items-center gap-2">
+                            <img
+                                src={user.icon_url || SharedUrl.P_ICON_URL}
+                                alt={"user_pfp"}
+                                className="w-8 h-8 rounded-full border-2 border-white"
+                            />
+                            <span className="text-m font-bold">
+                                User: {user.username}
+                            </span>
+                        </div>
+                    </button>
+
+                    {actionsOpen && (
+                        <div className="absolute mt-1 flex flex-col gap-1 w-40 bg-gray-800 rounded shadow-lg border-2 border-green-600 z-50">
+                            <button
+                                onClick={() => handleActionClick("Favourites")}
+                                className="text-m font-semibold px-3 py-1 hover:bg-gray-700 rounded text-white"
+                            >
+                                Favourites
+                            </button>
+                            <button
+                                onClick={() => handleActionClick("Orders")}
+                                className="text-m font-semibold px-3 py-1 hover:bg-gray-700 rounded text-white"
+                            >
+                                Orders
+                            </button>
+                            <button
+                                onClick={logout}
+                                className="text-m font-semibold px-3 py-1 hover:bg-gray-700 rounded text-white"
+                            >
+                                Log Out
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* DELETE CONFIRM MODAL */}

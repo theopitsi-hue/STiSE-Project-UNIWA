@@ -8,9 +8,14 @@ const Stores = () => {
   const [filteredStores, setFilteredStores] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [categories, setCategories] = useState([]);
 
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const carouselImages = [
+    SharedUrl.SR_BANNER1,
+    SharedUrl.SR_BANNER2,
+    SharedUrl.SR_BANNER3
+  ];
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +53,14 @@ const Stores = () => {
     setFilteredStores(result);
   }, [search, stores]);
 
+  // Carousel automatic slide
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCarouselIndex(prev => (prev + 1) % carouselImages.length);
+    }, 15000); //15 sec
+    return () => clearInterval(interval);
+  }, []);
+
   if (loading) {
     return (
       <p className="text-center mt-16 text-white text-lg">
@@ -58,19 +71,61 @@ const Stores = () => {
 
   return (
     <div className="bg-gray-900 min-h-screen text-white w-full">
-      {/* custom Navbar */}
       <Navbar />
 
-      {/* Main layout */}
-      <div className="pt-20 px-3 w-full grid grid-cols-[260px_1fr] gap-6">
-        {/* Sidebar */}
-        <aside className="bg-gray-800 rounded-xl p-3 h-fit sticky top-24">
-          <h2 className="text-2xl font-semibold mb-3 text-springOrange">
-            Filters
-          </h2>
+      {/* ----- Carousel ----- */}
+      <div className="relative w-full mb-6 h-96 rounded-xl overflow-hidden shadow-lg">
+        {carouselImages.map((img, idx) => (
+          <img
+            key={idx}
+            src={img || SharedUrl.P_BACKDROP_URL}
+            alt={`carousel-${idx}`}
+            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === carouselIndex ? "opacity-100" : "opacity-0"
+              }`}
+          />
+        ))}
 
-          <div className="mt-1 space-y-3 text-gray-300">
-            <p className="text-xl text-springOrange">Categories</p>
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent/10 to-transparent" />
+
+        {/* Big Text aligned right */}
+        <div className="absolute bottom-2 left-5 text-left">
+          <h1 className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg">
+            Welcome to Springroll Express
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mt-2">
+            Fast delivery, happy taste buds
+          </p>
+        </div>
+
+        {/* Button on top of carousel */}
+        <div className="absolute bottom-10 right-2 transform -translate-x-1/2">
+          <button
+            onClick={() => console.log("Carousel button clicked!")}
+            className="px-6 py-3 bg-green-400 text-xl md:text-2xl text-black mt-2 font-bold rounded-xl hover:bg-green-500 transition"
+          >
+            Shop Now
+          </button>
+        </div>
+        {/* Optional indicators */}
+        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
+          {carouselImages.map((_, idx) => (
+            <button
+              key={idx}
+              className={`w-3 h-3 rounded-full ${idx === carouselIndex ? "bg-green-400" : "bg-gray-500"}`}
+              onClick={() => setCarouselIndex(idx)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="pt-0 px-3 w-full grid grid-cols-[260px_1fr] gap-6">
+
+        {/* Sidebar */}
+        <aside className="relative bg-gray-800 rounded-xl p-3 h-fit sticky top-24">
+          <h2 className="text-2xl font-semibold mb-2 text-springOrange">Filters</h2>
+
+          <div className="mt-1 space-y-0 text-gray-300">
+            <p className="text-xl mb-0 text-springOrange">Categories</p>
             {categories.map(category => (
               <label
                 key={category.id}
@@ -83,8 +138,8 @@ const Stores = () => {
             ))}
           </div>
 
-          <div className="mt-6 space-y-3 text-gray-300">
-            <p className="text-xl text-springOrange">Offers</p>
+          <div className="mt-6 space-y-0 text-gray-300">
+            <p className="text-xl mb-0 text-springOrange">Offers</p>
             <label className="text-xl flex items-center gap-2 cursor-pointer select-none">
               <input type="checkbox" className="themed-checkbox" />
               <span className="checkbox-box" />
@@ -93,8 +148,10 @@ const Stores = () => {
           </div>
         </aside>
 
-        {/* Content */}
-        <main className="w-full">
+        {/* Main Content */}
+        <main className="relative w-full">
+
+          {/* Search bar */}
           <input
             type="text"
             placeholder="Search for a store"
@@ -103,6 +160,7 @@ const Stores = () => {
             className="w-full mb-8 px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
           />
 
+          {/* Stores grid */}
           <div className="grid grid-cols-4 gap-3">
             {filteredStores.map(store => (
               <button
@@ -124,9 +182,7 @@ const Stores = () => {
                       alt={store.name}
                       className="w-14 h-14 rounded-full border-2 border-white"
                     />
-                    <h3 className="text-lg font-semibold">
-                      {store.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold">{store.name}</h3>
                   </div>
 
                   <p className="text-gray-300 line-clamp-2">
@@ -143,7 +199,7 @@ const Stores = () => {
           </div>
         </main>
       </div>
-    </div>
+    </div >
   );
 };
 
