@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import SharedUrl from "../../api/sharedUrl";
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+
+const BACKDROP_URL = "https://via.placeholder.com/400x150";
+const ICON_URL = "https://via.placeholder.com/80";
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
-  const [filteredStores, setFilteredStores] = useState([]);
-  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
-  const [adreses, setAdresses] = useState([]);
-  const [selectedAdress, setSelAdresses] = useState([]);
   const navigate = useNavigate();
 
+  // Address state
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [customAddress, setCustomAddress] = useState("");
+
   useEffect(() => {
-    fetch(SharedUrl.STORES, {
+    fetch("http://localhost:8080/api/stores", {
       credentials: "include",
       headers: { "Content-Type": "application/json" }
     })
@@ -22,8 +24,7 @@ const Stores = () => {
         return res.json();
       })
       .then(data => {
-        setStores(data || []);
-        setFilteredStores(data || []);
+        setStores(data);
         setLoading(false);
       })
       .catch(err => {
@@ -31,176 +32,139 @@ const Stores = () => {
         setLoading(false);
       });
 
-    fetch(SharedUrl.CATEGORIES, {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        setCategories(data || []);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-
-    //todo: fetch adresses
-    setAdresses(["test1", "test2"])
-    //setSelAdresses()
+    // TODO: fetch addresses from API
+    // For now, using placeholder addresses
+    setAddresses(["123 Main St, City", "456 Oak Ave, Town"]);
   }, []);
 
-  useEffect(() => {
-    const result = stores.filter(store =>
-      store.name.toLowerCase().includes(search.toLowerCase())
-    );
-    setFilteredStores(result);
-  }, [search, stores]);
+  const handleStoreClick = (store) => {
+    const finalAddress = customAddress.trim() || selectedAddress;
 
-  if (loading) {
-    return (
-      <p className="text-center mt-16 text-white text-lg">
-        Loading stores...
-      </p>
-    );
-  }
+    if (!finalAddress) {
+      alert("Please select or enter a delivery address before visiting a store");
+      return;
+    }
+
+    // Navigate to store with address in state
+    navigate(`/stores/${store.slug}`, {
+      state: { address: finalAddress }
+    });
+  };
+
+  if (loading) return (
+    <p className="text-center mt-16 text-white text-lg">
+      Loading stores...
+    </p>
+  );
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white w-full">
-      {/* Navbar */}
-      <div className="w-full bg-gray-800 shadow-md px-8 py-4 flex items-center justify-between fixed top-0 z-30 h-14">
-        {/* Logo button */}
-        <button
-          onClick={() => navigate("/stores")}
-          className="flex items-center gap-2"
-        >
-          <img
-            src={SharedUrl.SR_LOGO || SharedUrl.P_ICON_URL}
-            alt="Logo"
-            className="w-13 h-12"
-          />
-          <span className="text-2xl text-white font-semibold text-xl">Springroll Express</span>
-        </button>
+    <div className="p-6 sm:p-8 bg-[#0f0f0f] min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-springOrange text-center">
+        Stores
+      </h1>
 
-        {/* Address selection field */}
-        <select
-          value={selectedAdress || "Set Delivery Adress"}
-          //onChange={(e) => setSelectedAddress(e.target.value)}
-          className="px-2 py-2 rounded-xl bg-gray-700 text-white outline-none focus:ring-2 focus:ring-green-400"
-        >
-          <option value="" disabled>Select your address</option>
-          {adreses.map((addr, idx) => (
-            <option key={idx} value={addr}>{addr}</option>
-          ))}
-        </select>
-
-        {/* Other navbar items */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/")}
-            className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
-          >
-            Log Out
-          </button>
-        </div>
-      </div>
-
-
-      {/*main layout */}
-      <div className="pt-20 px-3 w-full grid grid-cols-[260px_1fr] gap-6">
-        {/* sidebar */}
-        <aside className="bg-gray-800 rounded-xl p-3 h-fit sticky top-24">
-          <h2 className="text-2xl font-semibold mb-3 text-springOrange bold">Filters</h2>
-
-          {/* categgories */}
-          <div className="mt-1 space-y-3 text-sm text-gray-300">
-            <p className="text-xl text-springOrange leading-[1]">Categories</p>
-            {categories.map(category => (
-              <label key={category.id} className="text-xl flex items-center leading-[1] gap-2 cursor-pointer select-none text-gray-300">
-                <input
-                  type="checkbox"
-                  //onChange={(e) => categoryClicked(e.target.checked)}
-                  className="themed-checkbox"
-                />
-                <span className="checkbox-box" />
-                <span>{category.name}</span>
-              </label>
-            )
-            )}
-          </div>
-          {/* offers */}
-          <div className="mt-6 space-y-3 text-sm text-gray-300">
-            <p className="text-xl text-springOrange leading-[1]">Offers</p>
-            <label className="text-xl flex items-center leading-[1] gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                //checked={freeDelivery}
-                //onChange={(e) => setFreeDelivery(e.target.checked)}
-                className="themed-checkbox"
-              />
-              <span className="checkbox-box" />
-              <span>Free delivery</span>
+      {/* Address Selection Section */}
+      <div className="max-w-4xl mx-auto mb-10 bg-[#1a1a1a] p-6 rounded-2xl shadow-lg">
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Delivery Address
+        </h2>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm text-gray-400 mb-2">
+              Select from saved addresses
             </label>
+            <select
+              value={selectedAddress}
+              disabled={!!customAddress}
+              onChange={e => {
+                setSelectedAddress(e.target.value);
+                setCustomAddress("");
+              }}
+              className="w-full px-4 py-3 rounded-xl bg-gray-700 text-white border border-gray-600 focus:border-springGreenMedium focus:outline-none transition"
+            >
+              <option value="">Select your address</option>
+              {addresses.map((addr, idx) => (
+                <option key={idx} value={addr}>
+                  {addr}
+                </option>
+              ))}
+            </select>
           </div>
-        </aside>
 
-        {/* content */}
-        <main className="w-full">
-          {/* search bar */}
-          <input
-            type="text"
-            placeholder="Search for a store"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full mb-8 px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
-          />
-
-          {/* store grid */}
-          <div className="grid grid-cols-4 gap-3">
-            {filteredStores.map(store => (
-              <button
-                key={store.id}
-                onClick={() => navigate(`/stores/${store.slug}`)}
-                className="relative h-52 rounded-lg overflow-hidden shadow hover:shadow-xl transition text-left group border-2 border-green-800"
-                style={{
-                  backgroundImage: `url(${store.image || SharedUrl.P_BACKDROP_URL})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center"
-                }}
-              >
-                {/* gradient overlay */}
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/50 transition bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
-
-                {/*content */}
-                <div className="relative z-10 px-3 h-full flex flex-col justify-end">
-                  <div className="flex items-center gap-2 mb-1">
-                    <img
-                      src={store.icon || SharedUrl.P_ICON_URL}
-                      alt={store.name}
-                      className="w-14 h-14 rounded-full border-2 border-white"
-                    />
-                    <h3 className="text-lg font-semibold leading-[1] text-white mt-[6px]">
-                      {store.name}
-                    </h3>
-                  </div>
-                  {store.name && (
-                    <p className="text-m text-gray-300 leading-[1.2] line-clamp-2">
-                      {store?.description || "Placeholder Description Text !!! Placeholder Description Text !!! Placeholder Description Text !!!"}
-                    </p>
-                  )}
-                  <div className="text-gray-400 leading-[0.2] flex items-center justify-between">
-                    <p>Min. Order: {store?.minprice || "ph"}€</p>
-                    <p>{store.mindeliverytime || "ph"}'</p>
-                  </div>
-                </div>
-              </button>
-            ))}
+          <div className="flex-1">
+            <label className="block text-sm text-gray-400 mb-2">
+              Or enter a new address
+            </label>
+            <input
+              type="text"
+              placeholder="Enter delivery address"
+              value={customAddress}
+              onChange={e => {
+                setCustomAddress(e.target.value);
+                setSelectedAddress("");
+              }}
+              className="w-full px-4 py-3 rounded-xl bg-gray-700 text-white border border-gray-600 focus:border-springGreenMedium focus:outline-none transition"
+            />
           </div>
-        </main>
+        </div>
+
+        {(selectedAddress || customAddress) && (
+          <div className="mt-4 p-3 bg-gray-700 rounded-lg">
+            <p className="text-sm text-gray-300">
+              <span className="font-semibold text-springGreenMedium">Delivering to:</span>{" "}
+              {customAddress || selectedAddress}
+            </p>
+          </div>
+        )}
       </div>
-    </div>
-  );
-};
 
+      {stores.length === 0 ? (
+        <p className="text-center text-gray-400">
+          No stores available at the moment.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {stores.map(store => (
+            <div
+              key={store.id}
+              onClick={() => handleStoreClick(store)}
+              className="bg-[#1a1a1a] text-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:transform hover:scale-105 transition-transform duration-200"
+            >
+              <div className="relative">
+                <img
+                  src={BACKDROP_URL}
+                  alt="Backdrop"
+                  className="w-full h-36 object-cover"
+                />
+                <img
+                  src={ICON_URL}
+                  alt="Store Icon"
+                  className="w-16 h-16 rounded-full border-2 border-white absolute -bottom-8 left-1/2 transform -translate-x-1/2"
+                />
+              </div>
+
+              <div className="pt-10 pb-6 px-4 text-center">
+                <h2 className="text-xl font-semibold mb-1 text-white">
+                  {store.name}
+                </h2>
+                {store.slug && (
+                  <p className="text-sm text-gray-400">{store.slug}</p>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStoreClick(store);
+                  }}
+                  className="mt-3 px-4 py-2 bg-springGreenMedium rounded-full text-white text-sm font-medium hover:bg-springGreenLight transition"
+                >
+                  Visit Store
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+};
 export default Stores;

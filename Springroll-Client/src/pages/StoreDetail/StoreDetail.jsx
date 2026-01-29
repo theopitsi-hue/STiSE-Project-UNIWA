@@ -1,12 +1,24 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import SharedUrl from "../../api/sharedUrl";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
-const CART_MOD_URL = SharedUrl.CART + "/mod";
+//gia twra, mexri to backend na kanei catch-up
+const BACKDROP_URL = "https://cdn.pixabay.com/photo/2015/11/06/15/04/bamboo-1028699_1280.jpg";
+const ICON_URL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.pngarts.com%2Ffiles%2F10%2FCircle-PNG-Transparent-Image.png&f=1&nofb=1&ipt=75453769b9e44f72b538b29c8eaddfd56aecf437a0e17737e515f35a8f1d44d5";
+
+// Placeholder for SharedUrl - replace with your actual import
+const SharedUrl = {
+    CART: "http://localhost:8080/api/cart",
+    P_BACKDROP_URL: BACKDROP_URL,
+    P_ICON_URL: ICON_URL,
+    SR_LOGO: null
+};
+
+const CART_MOD_URL = `${SharedUrl.CART}/modify`;
 
 const StoreDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -19,13 +31,25 @@ const StoreDetail = () => {
     const [customAddress, setCustomAddress] = useState("");
 
     useEffect(() => {
-        fetch(`${SharedUrl.STORES}/${slug}`, { credentials: "include" })
-            .then((res) => {
+        // Set address from navigation state if available
+        if (location.state?.address) {
+            // Check if it's one of the saved addresses
+            const isSavedAddress = addresses.includes(location.state.address);
+            if (isSavedAddress) {
+                setSelectedAddress(location.state.address);
+            } else {
+                setCustomAddress(location.state.address);
+            }
+        }
+
+        fetch(`http://localhost:8080/api/stores/${slug}`, { credentials: "include" })
+            .then(res => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
             })
-            .then((data) => {
+            .then(data => {
                 if (!data) {
+                    // If no store found, redirect to /stores
                     navigate("/stores", { replace: true });
                     return;
                 }
@@ -35,8 +59,9 @@ const StoreDetail = () => {
                 }
                 setLoading(false);
             })
-            .catch((err) => {
+            .catch(err => {
                 console.error(err);
+                // Redirect if the fetch fails
                 navigate("/stores", { replace: true });
             });
 
@@ -70,9 +95,9 @@ const StoreDetail = () => {
                 console.error(err);
             });
 
-        //todo: fetch adresses
-        setAddresses(["test1", "test2"]);
-    }, [slug, navigate]);
+        //todo: fetch addresses from API
+        setAddresses(["test address 1", "test address 2"]);
+    }, [slug, navigate, location.state]);
 
     const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
         try {
@@ -135,11 +160,11 @@ const StoreDetail = () => {
 
     return (
         <div
-            className="bg-gray-900 text-white w-full h-full"
+            className="bg-gray-900 text-white w-full min-h-screen"
             style={{ paddingTop: "64px" }}
         >
             {/* Navbar */}
-            <div className="w-full bg-gray-800 shadow-md px-8 py-4 flex items-center justify-between fixed top-0 z-30 h-14">
+            <div className="w-full bg-gray-800 shadow-md px-8 py-4 flex items-center justify-between fixed top-0 z-30 h-16">
                 {/* Logo button */}
                 <button
                     onClick={() => navigate("/stores")}
@@ -162,7 +187,7 @@ const StoreDetail = () => {
                             setSelectedAddress(e.target.value);
                             setCustomAddress("");
                         }}
-                        className="px-2 py-2 rounded-xl bg-gray-700 text-white"
+                        className="px-3 py-2 rounded-xl bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
                     >
                         <option value="">Select your address</option>
                         {addresses.map((addr, idx) => (
@@ -180,169 +205,164 @@ const StoreDetail = () => {
                             setCustomAddress(e.target.value);
                             setSelectedAddress("");
                         }}
-                        className="px-3 py-2 rounded-xl bg-gray-700 text-white"
+                        className="px-3 py-2 rounded-xl bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400"
                     />
                 </div>
 
                 <button
                     onClick={() => navigate("/")}
-                    className="bg-green-400 text-black px-4 py-2 rounded"
+                    className="bg-green-400 text-black px-4 py-2 rounded hover:bg-green-500 transition"
                 >
                     Log Out
                 </button>
             </div>
 
             {/* Banner */}
-            <div className="w-full relative">
+            <div className="w-full relative mb-4">
                 <img
                     src={store?.banner || SharedUrl.P_BACKDROP_URL}
                     alt="Banner"
-                    className="w-full h-32 relative object-cover"
-                    style={{ height: "138px", bottom: "20px" }} // original 128px + 10px
+                    className="w-full h-40 object-cover"
                 />
                 <img
-                    src={store?.icon || SharedUrl.P_ICON_URL}
+                    src={ICON_URL}
                     alt="Store Logo"
                     className="absolute -bottom-16 left-7 w-32 h-32 rounded-full border-4 border-white"
                 />
             </div>
 
             {/* Store Info */}
-            <div className="pt-2 px-44">
-                <h1 className="text-xl font-semibold leading-[1]">{store?.name}</h1>
-                <p className="text-gray-300 mt-3 leading-[1]">
-                    {store?.description || "Placeholder Description Text"}
-                </p>
+            <div className="pt-20 px-6 pb-4">
+                <h1 className="text-3xl font-bold">{store.name}</h1>
+                <p className="text-gray-300 mt-2">{store.description}</p>
             </div>
 
-            {/* Main Grid Layout */}
-            <div
-                className="grid gap-3 mt-4 px-3"
-                style={{ gridTemplateColumns: "minmax(150px, 1fr) 3fr minmax(250px, 1fr)" }}
-            >
-                {/* Left Sidebar - Categories */}
-                <div
-                    className="sticky bg-gray-900 pr-1 sticky top-28 h-[80vh]"
-                    style={{ top: "64px" }}
-                >
-                    {store?.itemGroups?.map((group) => (
-                        <button
-                            key={group.name}
-                            onClick={() => setActiveCategory(group.name)}
-                            className={`w-full text-left px-4 py-2 mb-2 rounded-lg transition-colors ${activeCategory === group.name
-                                ? "bg-green-400 text-black font-semibold"
-                                : "bg-gray-800 text-white hover:bg-gray-700"
+            {/* Categories */}
+            {store.itemGroups && store.itemGroups.length > 0 && (
+                <div className="px-6 pb-4 overflow-x-auto">
+                    <div className="flex space-x-4">
+                        {store.itemGroups.map(group => (
+                            <button
+                                key={group.name}
+                                onClick={() => setActiveCategory(group.name)}
+                                className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
+                                    activeCategory === group.name 
+                                        ? "bg-green-400 text-black font-semibold" 
+                                        : "bg-gray-700 text-white hover:bg-gray-600"
                                 }`}
-                        >
-                            {group.name}
-                        </button>
-                    ))}
+                            >
+                                {group.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
+            )}
 
-                {/* Items */}
-                <div className="grid grid-cols-2 gap-3">
-                    {(!store?.items || store.items.length === 0) ? (
-                        <h1 className="text-xl font-semibold">
-                            No items available, check back later!
-                        </h1>
-                    ) : (
-                        store.items
-                            .filter(
-                                (item) =>
-                                    item.itemGroupIds?.includes(activeCategory) || activeCategory === "popular"
-                            )
-                            .map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-                                >
-                                    <img
-                                        src={item.image || SharedUrl.P_BACKDROP_URL}
-                                        alt={item.name}
-                                        className="h-48 w-full object-cover"
-                                    />
-                                    <div className="px-3 py-2 flex flex-col justify-between leading-[2]">
-                                        <div>
-                                            <div className="flex items-center justify-between mb-[1] leading-[1]">
-                                                <h3 className="text-xl font-semibold leading-[1] whitespace-normal break-words">
+            {/* Main Content - Items and Cart */}
+            <div className="px-6 pb-6 flex gap-6">
+                {/* Items Grid */}
+                <div className="flex-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {(!store?.items || store.items.length === 0) ? (
+                            <h1 className="text-xl font-semibold col-span-full">
+                                No items available, check back later!
+                            </h1>
+                        ) : (
+                            store.items
+                                .filter(
+                                    (item) =>
+                                        !activeCategory || 
+                                        item.itemGroupIds?.includes(activeCategory)
+                                )
+                                .map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+                                    >
+                                        <img
+                                            src={item.image || SharedUrl.P_BACKDROP_URL}
+                                            alt={item.name}
+                                            className="h-48 w-full object-cover"
+                                        />
+                                        <div className="p-4">
+                                            <div className="flex items-start justify-between mb-2">
+                                                <h3 className="text-lg font-semibold flex-1">
                                                     {item.name}
                                                 </h3>
-                                                <p className="mt-2 font-bold leading-[1]">{item.price} €</p>
+                                                <p className="text-lg font-bold ml-2">{item.price} €</p>
                                             </div>
-                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || "placeholder item description because i cant think of anything to add so please be patient ok? ok"}</p>
+                                            <p className="text-gray-300 text-sm mb-3 line-clamp-2">
+                                                {item.description || "Delicious item from our menu"}
+                                            </p>
+                                            <button
+                                                onClick={() => addToCart(item)}
+                                                className="w-full bg-green-400 text-black px-3 py-2 rounded font-medium hover:bg-green-500 transition"
+                                            >
+                                                Add to Cart
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => addToCart(item)}
-                                            className="mt-1 leading-[1] bg-green-400 text-black px-3 py-2 rounded hover:bg-green-500 transition"
-                                        >
-                                            Add to Cart
-                                        </button>
                                     </div>
-                                </div>
-                            ))
-                    )}
+                                ))
+                        )}
+                    </div>
                 </div>
 
                 {/* Right Sidebar - Cart */}
-                <div
-                    className="sticky bg-gray-800 p-2 top-28 h-[80vh] rounded-lg flex flex-col shadow-lg overflow-hidden w-105"
-                    style={{ top: "64px" }}
-                >
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                        <h2 className="text-lg font-semibold m-2 leading-[1]">Cart</h2>
-                        <button
-                            onClick={clearCart}
-                            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                            Clear
-                        </button>
-                    </div>
+                <div className="w-80 flex-shrink-0">
+                    <div className="sticky top-20 bg-gray-800 p-4 rounded-lg shadow-lg">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-semibold">Cart</h2>
+                            <button
+                                onClick={clearCart}
+                                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition"
+                            >
+                                Clear
+                            </button>
+                        </div>
 
-                    {/* Scrollable cart items */}
-                    <div className="overflow-y-auto flex-1">
-                        {Object.values(cart).length === 0 ? (
-                            <p className="text-gray-400">Your cart is empty</p>
-                        ) : (
-                            Object.values(cart).map(({ item, quantity }) => (
-                                <div key={item.id} className="flex items-center justify-between mb-2">
-                                    <img
-                                        src={item.image || SharedUrl.P_BACKDROP_URL}
-                                        alt={item.name}
-                                        className="w-16 h-16 object-cover rounded"
-                                    />
-                                    <div className="flex-1 px-2">
-                                        <p className="text-sm font-semibold leading-[1] m-0">{item.name}</p>
-                                        <p className="text-xs text-gray-300 leading-[1.2] m-0 whitespace-normal break-words">
-                                            {item.name}
-                                        </p>
-                                        <p className="text-sm font-bold leading-[2] m-0">{item.price} €</p>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <button
-                                            onClick={() => removeFromCart(item)}
-                                            className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                        >
-                                            -
-                                        </button>
-                                        <span>{quantity}</span>
-                                        <button
-                                            onClick={() => addToCart(item)}
-                                            className="bg-gray-700 px-2 rounded hover:bg-gray-600"
-                                        >
-                                            +
-                                        </button>
-                                    </div>
+                        {/* Scrollable cart items */}
+                        <div className="max-h-[60vh] overflow-y-auto mb-4">
+                            {Object.values(cart).length === 0 ? (
+                                <p className="text-gray-400 text-center py-8">Your cart is empty</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {Object.values(cart).map(({ item, quantity }) => (
+                                        <div key={item.id} className="flex items-center gap-3 bg-gray-700 p-2 rounded">
+                                            <img
+                                                src={item.image || SharedUrl.P_BACKDROP_URL}
+                                                alt={item.name}
+                                                className="w-16 h-16 object-cover rounded"
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-semibold truncate">{item.name}</p>
+                                                <p className="text-sm font-bold">{item.price} €</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => removeFromCart(item)}
+                                                    className="bg-gray-600 px-2 py-1 rounded hover:bg-gray-500 transition"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="w-6 text-center">{quantity}</span>
+                                                <button
+                                                    onClick={() => addToCart(item)}
+                                                    className="bg-gray-600 px-2 py-1 rounded hover:bg-gray-500 transition"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))
-                        )}
-                    </div>
+                            )}
+                        </div>
 
-                    {/* Footer - always visible order button */}
-                    <div className="mt-2 flex-shrink-0">
+                        {/* Footer - Order button */}
                         <button
                             onClick={handlePay}
-                            className="w-full bg-green-600 text-white underline bold py-2 rounded hover:bg-green-800"
+                            className="w-full bg-green-600 text-white py-3 rounded font-semibold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={Object.values(cart).length === 0}
                         >
                             Order Total: {cartFinalPrice.toFixed(2)} €
