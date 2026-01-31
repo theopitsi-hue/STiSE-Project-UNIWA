@@ -25,3 +25,6 @@ npm start
 
 ### Additional tools used
 (todo)
+
+## Credits
+Some images used for stores and other visual content in this project are sourced from Pixabay (https://pixabay.com) and are used in accordance with its free license.
