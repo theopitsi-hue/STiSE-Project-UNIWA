@@ -14,7 +14,10 @@ Or alternatevly through GithubDesktop:
 File -> clone Repository -> URL (`https://github.com/theopitsi-hue/STiSE-Project-UNIWA.git`)
 
 ### Initialize Backend (Springboot)
-(todo)
+```
+cd ../Springroll-Server
+mvn spring-boot:run
+```
 
 ## Run Client (React)
 ```
@@ -24,7 +27,12 @@ npm start
 ```
 
 ### Additional tools used
-(todo)
+Project Management - Jira
+ORM - Hibernate (as part of Springboot)
+Testing - Junit (as part of Springboot)
+Database Hosting - Docker
+IDE(s) - Intellij, VS Code
+Plugins - Lombok
 
 ## Credits
 Some images used for stores and other visual content in this project are sourced from Pixabay (https://pixabay.com) and are used in accordance with its free license.
