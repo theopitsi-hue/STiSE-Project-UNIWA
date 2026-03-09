@@ -1,4 +1,4 @@
-package com.github.theopitsihue.stise_springroll.entity.request.address;
+package com.github.theopitsihue.stise_springroll.request.address;
 
 import lombok.Getter;
 

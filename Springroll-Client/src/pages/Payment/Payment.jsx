@@ -8,7 +8,7 @@ const Payment = () => {
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
     const navigate = useNavigate();
 
-    // ---------------- ADDRESS DROPDOWN STATE ----------------
+
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState("");
     const [addingAddress, setAddingAddress] = useState(false);
@@ -16,7 +16,7 @@ const Payment = () => {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // ---------------- FETCH ADDRESSES ----------------
+
     const fetchAddresses = async () => {
         try {
             const res = await fetch(SharedUrl.ADDR, {
@@ -35,7 +35,35 @@ const Payment = () => {
         fetchAddresses();
     }, []);
 
-    // ---------------- CLICK OUTSIDE ----------------
+    const finalizeCart = async () => {
+        try {
+            const response = await fetch(`${SharedUrl.CART}/fin`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    paymentMethod: method,
+                    userAddressID: selectedAddress
+                })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                console.error("Payment failed:", errText);
+                return;
+            }
+
+            const data = await response.json();
+            console.log("Payment successful:", data);
+
+            // optional: redirect after payment
+            navigate("/orders");
+        } catch (err) {
+            console.error("Payment request failed:", err);
+        }
+    };
+
+
     useEffect(() => {
         const handler = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -46,7 +74,7 @@ const Payment = () => {
         return () => document.removeEventListener("mousedown", handler);
     }, []);
 
-    // ---------------- ADD ADDRESS ----------------
+
     const addNewAddress = async () => {
         if (!newAddress.trim()) return;
         try {
@@ -68,7 +96,6 @@ const Payment = () => {
         }
     };
 
-    // ---------------- CART FETCH ----------------
     useEffect(() => {
         fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
             .then((res) => {
@@ -353,7 +380,10 @@ const Payment = () => {
                             <span>{cartFinalPrice}€</span>
                         </div>
 
-                        <button className="w-full p-3 bg-green-600 text-white rounded-lg font-bold mt-[2] hover:bg-green-800 transition">
+                        <button
+                            onClick={finalizeCart}
+                            className="w-full p-3 bg-green-600 text-white rounded-lg font-bold mt-[2] hover:bg-green-800 transition"
+                        >
                             Pay Now
                         </button>
                         <button

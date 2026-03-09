@@ -1,6 +1,7 @@
 package com.github.theopitsihue.stise_springroll.entity.order;
 
 import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Data
@@ -25,10 +27,11 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(
@@ -40,7 +43,17 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public static @NotNull Order createFromCart(Cart cart) {
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private UserAddress address;
+
+    private BigDecimal totalPrice;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime lastUpdateStatusAt;
+
+
+    public static @NotNull Order createFromCart(Cart cart, UserAddress address) {
         Order order = Order.builder().user(cart.getUser()).status(OrderStatus.PENDING).build();
         cart.getItems().forEach(item ->{
             OrderItem orderItem = OrderItem.builder()
@@ -55,15 +68,17 @@ public class Order {
 
             order.getItems().add(orderItem);
         });
+        order.totalPrice = cart.getFinalPrice();
+        order.setCreatedAt(LocalDateTime.now());
+        order.address = address;
+        order.setStatus(OrderStatus.PENDING);
         return order;
     }
 
-    enum OrderStatus{
-        PENDING,
-        COMPLETED
+    public void setStatus(OrderStatus status){
+        if (status != this.status){
+            this.status = status;
+            this.lastUpdateStatusAt = LocalDateTime.now();
+        }
     }
-
-    private BigDecimal totalPrice;
-
-    private LocalDateTime createdAt;
 }

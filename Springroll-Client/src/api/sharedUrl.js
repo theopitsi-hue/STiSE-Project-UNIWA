@@ -21,6 +21,7 @@ class SharedUrl {
     static CATEGORIES = this.STORES + "/categories"
     static CART = this.API + "/cart"
     static ADDR = this.API + "/account/addr"
+    static ORD = this.API + "/orders"
 }
 
 export default SharedUrl;

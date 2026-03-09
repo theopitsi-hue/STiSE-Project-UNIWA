@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
+import com.github.theopitsihue.stise_springroll.entity.order.Order;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -68,6 +69,8 @@ public class User {
             nullable = false
     )
     private Role privilege;
+
+
 
     @OneToMany(
             mappedBy = "user",

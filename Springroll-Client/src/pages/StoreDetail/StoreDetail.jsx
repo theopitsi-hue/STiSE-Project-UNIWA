@@ -201,7 +201,7 @@ const StoreDetail = () => {
                                                 </h3>
                                                 <p className="mt-2 font-bold leading-[1]">{item.price} €</p>
                                             </div>
-                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || "placeholder item description because i cant think of anything to add so please be patient ok? ok"}</p>
+                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || ""}</p>
                                         </div>
                                         <button
                                             onClick={() => addToCart(item)}

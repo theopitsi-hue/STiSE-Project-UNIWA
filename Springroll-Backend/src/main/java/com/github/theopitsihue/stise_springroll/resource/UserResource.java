@@ -2,12 +2,12 @@ package com.github.theopitsihue.stise_springroll.resource;
 
 import com.github.theopitsihue.stise_springroll.config.security.CustomUserDetails;
 import com.github.theopitsihue.stise_springroll.entity.User;
-import com.github.theopitsihue.stise_springroll.entity.request.address.UserAddressRequest;
-import com.github.theopitsihue.stise_springroll.entity.request.address.UserAddressResponse;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.AuthData;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.LoginRequest;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.LoginResponse;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.SignUpRequest;
+import com.github.theopitsihue.stise_springroll.request.address.UserAddressRequest;
+import com.github.theopitsihue.stise_springroll.request.address.UserAddressResponse;
+import com.github.theopitsihue.stise_springroll.request.auth.AuthData;
+import com.github.theopitsihue.stise_springroll.request.auth.LoginRequest;
+import com.github.theopitsihue.stise_springroll.request.auth.LoginResponse;
+import com.github.theopitsihue.stise_springroll.request.auth.SignUpRequest;
 import com.github.theopitsihue.stise_springroll.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;

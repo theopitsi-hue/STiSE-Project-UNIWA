@@ -1,4 +1,4 @@
-package com.github.theopitsihue.stise_springroll.entity.request.cart;
+package com.github.theopitsihue.stise_springroll.request.cart;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -97,15 +97,6 @@ const Stores = () => {
           </p>
         </div>
 
-        {/* Button on top of carousel */}
-        <div className="absolute bottom-10 right-2 transform -translate-x-1/2">
-          <button
-            onClick={() => console.log("Carousel button clicked!")}
-            className="px-6 py-3 bg-green-400 text-xl md:text-2xl text-black mt-2 font-bold rounded-xl hover:bg-green-500 transition"
-          >
-            Shop Now
-          </button>
-        </div>
         {/* Optional indicators */}
         <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
           {carouselImages.map((_, idx) => (

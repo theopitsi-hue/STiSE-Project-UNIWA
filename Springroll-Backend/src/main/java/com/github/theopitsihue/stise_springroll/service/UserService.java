@@ -2,9 +2,9 @@ package com.github.theopitsihue.stise_springroll.service;
 
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
-import com.github.theopitsihue.stise_springroll.entity.request.address.UserAddressResponse;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.AuthData;
-import com.github.theopitsihue.stise_springroll.entity.request.auth.SignUpRequest;
+import com.github.theopitsihue.stise_springroll.request.address.UserAddressResponse;
+import com.github.theopitsihue.stise_springroll.request.auth.AuthData;
+import com.github.theopitsihue.stise_springroll.request.auth.SignUpRequest;
 import com.github.theopitsihue.stise_springroll.repository.AddressRepository;
 import com.github.theopitsihue.stise_springroll.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -109,6 +109,10 @@ public class UserService { //business logic
                 .stream()
                 .map(a -> new UserAddressResponse(a.getId(), a.getAddress()))
                 .toList();
+    }
+
+    public UserAddress getUserAddress(Long addressID) {
+        return addressRepository.getReferenceById(addressID);
     }
 
     @Transactional

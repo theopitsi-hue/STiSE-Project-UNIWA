@@ -1,4 +1,4 @@
-package com.github.theopitsihue.stise_springroll.entity.request.auth;
+package com.github.theopitsihue.stise_springroll.request.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

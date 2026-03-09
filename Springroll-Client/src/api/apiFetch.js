@@ -13,7 +13,7 @@ export function apiFetch() {
         const response = await fetch(url, config);
 
         if (response.status === 401) {
-            navigate("/login"); // This is safe because it's inside a hook
+            navigate("/login"); //this is safe because its inside a hook, right?
             return null;
         }
 

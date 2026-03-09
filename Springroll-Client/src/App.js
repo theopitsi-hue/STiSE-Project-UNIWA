@@ -8,6 +8,7 @@ import Payment from './pages/Payment/Payment';
 import Stores from './pages/Stores/Stores'
 import StoreDetail from './pages/StoreDetail/StoreDetail'
 import { UserProvider } from './context/UserContext';
+import Orders from './pages/Orders/Orders';
 
 function App() {
   const [users, setUser] = useState();
@@ -33,6 +34,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
             <Route path="/stores" element={<Stores />} />
             <Route path="/stores/:slug" element={<StoreDetail />} />
+            <Route path="/orders" element={<Orders />} />
 
             {/* Default route (optional) */}
             <Route path="/" element={<Login />} />

@@ -13,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -48,5 +50,9 @@ public class OrderService {
 
     public void deleteAll() {
         orderRepo.deleteAll();
+    }
+
+    public List<Order> getByUserID(UUID id) {
+        return orderRepo.findByUserId(id).get();
     }
 }

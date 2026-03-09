@@ -134,13 +134,16 @@ const Navbar = () => {
     // ---------------- ACTION BUTTON HANDLER ----------------
     const handleActionClick = (action) => {
         console.log("Clicked action:", action);
+        if (action === "Orders") {
+            navigate("/orders");
+        }
         setActionsOpen(false);
     };
 
     const selectedLabel =
-        Array.isArray(addresses)
+        Array.isArray(addresses) && addresses.find(a => a.id === selectedAddress)?.address
             ? "Delivering To - " + addresses.find(a => a.id === selectedAddress)?.address
-            : "Select delivery address";
+            : "Select Address";
 
     return (
         <>
@@ -170,7 +173,7 @@ const Navbar = () => {
 
                     {open && (
                         <div className="absolute mt-2 w-100 w-64 bg-gray-800 rounded-xl shadow-lg z-40 border-2 border-green-500">
-                            {addresses.filter(addr => addr.id != null).map(addr => (
+                            {Array.isArray(addresses) ? addresses.filter(addr => addr.id != null).map(addr => (
                                 <div
                                     key={addr.id}
                                     className="flex rounded-xl items-center justify-between px-3 py-2 hover:bg-gray-700"
@@ -196,7 +199,7 @@ const Navbar = () => {
                                         X
                                     </button>
                                 </div>
-                            ))}
+                            )) : ""}
 
                             <button
                                 onClick={() => {
