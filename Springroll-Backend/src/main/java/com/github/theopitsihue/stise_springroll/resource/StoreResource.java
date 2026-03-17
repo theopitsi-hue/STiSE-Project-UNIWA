@@ -26,15 +26,15 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
         this.categoryService = categoryService;
     }
 
-    @GetMapping
+    @GetMapping //todo: add paging
     public <string> List<Store> getAllStores(@AuthenticationPrincipal CustomUserDetails userIn, @RequestParam(required = false) Set<String> category) {
-        return storeService.getAllStores(category,0, 100).getContent();
+        return storeService.getAllStores(category,0, 10).getContent();
     }
 
     @GetMapping("/categories")
     public <string> List<Category> getStoreCategories(@AuthenticationPrincipal CustomUserDetails userIn) {
 
-        return categoryService.getAllCategories(0, 100).getContent();
+        return categoryService.getAllCategories(0, 10).getContent();
     }
 
 

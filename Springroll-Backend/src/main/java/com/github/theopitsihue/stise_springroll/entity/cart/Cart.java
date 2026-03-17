@@ -1,6 +1,7 @@
 package com.github.theopitsihue.stise_springroll.entity.cart;
 
 import com.github.theopitsihue.stise_springroll.entity.Item;
+import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,9 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(
-        name = "dbl_cart"
+        name = "dbl_cart",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "store_id"})
+
 )
 //represents a mutable state where the user can add/remove items, then pay for and turn into an Order
 public class Cart {
@@ -27,8 +30,8 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(
@@ -37,6 +40,10 @@ public class Cart {
             orphanRemoval = true
     )
     private List<CartItem> items = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     private LocalDateTime updatedAt;
 
@@ -77,14 +84,6 @@ public class Cart {
         BigDecimal fin = BigDecimal.valueOf(0);
         for (CartItem item : items){
             fin = fin.add(item.getItem().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-        }
-        return fin;
-    }
-
-    public int combinedTotalItems(){
-        int fin = 0;
-        for (CartItem item : items){
-            fin += item.getQuantity();
         }
         return fin;
     }

@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.service;
 
+import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
 import com.github.theopitsihue.stise_springroll.repository.CartRepository;
@@ -56,5 +57,21 @@ public class CartService {
 
     public void save(Cart cart){
         cartRepository.save(cart);
+    }
+
+    public Cart getOrCreate(User user, Store store) {
+        if (user == null || store == null) {
+            throw new IllegalArgumentException("User or Store is null");
+        }
+
+        return cartRepository.findByUserAndStore(user, store)
+                .orElseGet(() -> {
+                    Cart cart = Cart.builder()
+                            .user(user)
+                            .store(store)
+                            .updatedAt(LocalDateTime.now())
+                            .build();
+                    return cartRepository.save(cart);
+                });
     }
 }

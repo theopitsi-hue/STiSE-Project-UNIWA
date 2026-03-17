@@ -11,5 +11,4 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CartFinalizeRequest {
    Long userAddressID; //for the selected address to be given to the backend
-   //UUID storeID; todo
 }

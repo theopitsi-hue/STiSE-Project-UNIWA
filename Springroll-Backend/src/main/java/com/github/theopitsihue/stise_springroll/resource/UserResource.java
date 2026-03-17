@@ -35,19 +35,6 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
         this.userService = userService;
     }
 
-    //DEBUG, REMOVE FOR FINAL
-//    @GetMapping("/all")
-//    public List<User> getAllUsers() {
-//        return userService.getAllUsers(0, 100).getContent();
-//    }
-
-//
-//
-//    @GetMapping("/{id}") //ex. springroll/users/ABCD -> test user profile
-//    public User getUser(@PathVariable UUID id) {
-//        return userService.getUser(id);
-//    }
-
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpServletRequest request) {
         try {
@@ -106,7 +93,7 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
 
     @PostMapping("/auth/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        //Invalidate the session
+        //invalidate the session
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
@@ -121,6 +108,8 @@ public class UserResource { //to api mas, gia na mporei na sindethei kai na pare
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+
+
 
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }

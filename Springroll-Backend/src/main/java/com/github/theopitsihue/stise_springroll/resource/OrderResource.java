@@ -31,7 +31,7 @@ public class OrderResource {
     }
 
     @RequestMapping("/api/orders")
-    public ResponseEntity<?> getAll(@AuthenticationPrincipal CustomUserDetails userIn, HttpSession session) {
+    public ResponseEntity<?> getAllUserOrders(@AuthenticationPrincipal CustomUserDetails userIn, HttpSession session) {
 
         if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -42,7 +42,7 @@ public class OrderResource {
 
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not logged in or not registered."));
+                    .body(Map.of("error", "User doesn't exist."));
         }
 
         List<Order> orders = orderService.getByUserID(user.get().getId());

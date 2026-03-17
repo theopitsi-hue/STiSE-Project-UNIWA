@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.entity.order;
 
+import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
@@ -52,9 +53,14 @@ public class Order {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdateStatusAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
+
+
 
     public static @NotNull Order createFromCart(Cart cart, UserAddress address) {
-        Order order = Order.builder().user(cart.getUser()).status(OrderStatus.PENDING).build();
+        Order order = Order.builder().user(cart.getUser()).status(OrderStatus.PENDING).store(cart.getStore()).build();
         cart.getItems().forEach(item ->{
             OrderItem orderItem = OrderItem.builder()
                     .order(order)

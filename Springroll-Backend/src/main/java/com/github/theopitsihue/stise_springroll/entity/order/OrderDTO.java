@@ -31,4 +31,6 @@ public class OrderDTO {
     private LocalDateTime createdAt;
 
     private LocalDateTime lastUpdateStatusAt;
+
+    private String storeName;
 }

@@ -13,4 +13,5 @@ public class CartModificationRequest {
     private long itemId;
     private int change;
     private boolean clear;
+    private UUID storeId;
 }

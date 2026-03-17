@@ -1,7 +1,5 @@
 package com.github.theopitsihue.stise_springroll.service;
 
-
-import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekSchedule;
 import com.github.theopitsihue.stise_springroll.entity.Item;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
@@ -99,19 +97,5 @@ public class StoreService { //business logic
     }
 
 
-    public boolean isStoreOpen(UUID id, DayOfWeek day, LocalTime time){
-        var store  = getStoreByID(id);
-        if (store.isForceClosed()) return false;
-        return store.getSchedule().isOpen(day,time);
-    }
 
-    public boolean isStoreOpen(String slug, DayOfWeek day, LocalTime time){
-        var store  = getStoreBySlug(slug);
-        if (store.isForceClosed()) return false;
-        return store.getSchedule().isOpen(day,time);
-    }
-
-    public WeekSchedule getStoreScheduleBySlug(String slug){
-        return getStoreBySlug(slug).getSchedule();
-    }
 }

@@ -1,6 +1,7 @@
 package com.github.theopitsihue.stise_springroll.repository;
 
 import com.github.theopitsihue.stise_springroll.entity.Category;
+import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
 import jakarta.annotation.Nonnull;
@@ -14,5 +15,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 
     @Nonnull
     Optional<Cart> findByUser(@Nonnull User user);
+
+    Optional<Cart> findByUserAndStore(User user, Store store);
 }
 

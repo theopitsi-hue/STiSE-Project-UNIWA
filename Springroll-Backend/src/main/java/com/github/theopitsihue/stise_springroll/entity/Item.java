@@ -26,6 +26,8 @@ public class Item {
     @Column(nullable = false)
     private String name;
 
+    private String description;
+
     @Column(nullable = false)
     private BigDecimal price;
 

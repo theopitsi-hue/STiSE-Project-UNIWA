@@ -13,6 +13,19 @@ const StoreDetail = () => {
     const [activeCategory, setActiveCategory] = useState("");
     const [cart, setCart] = useState({});
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
+    const groupRefs = useRef({});
+    const itemsContainerRef = useRef(null);
+
+    const scrollToGroup = (groupName) => {
+        setActiveCategory(groupName);
+        const el = groupRefs.current[groupName];
+        const container = itemsContainerRef.current;
+        if (el && container) {
+            // scroll the container so the group header is at the top (respecting any sticky header)
+            const offset = el.offsetTop - container.offsetTop - 8; // small offset
+            container.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         fetch(`${SharedUrl.STORES}/${slug}`, { credentials: "include" })
@@ -34,7 +47,7 @@ const StoreDetail = () => {
                 navigate("/stores", { replace: true });
             });
 
-        fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
+        fetch(`${SharedUrl.CART}/get/${slug}`, { credentials: "include" })
             .then((res) => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 return res.json();
@@ -61,21 +74,22 @@ const StoreDetail = () => {
 
                 setCartFinalPrice(data.finalPrice);
             })
-            .catch((err) => {
+            .catch(err => {
                 console.error(err);
+                navigate("/login", { replace: true });
             });
     }, [slug, navigate]);
 
     if (loading)
         return <p className="text-center mt-8 text-white">Loading store...</p>;
 
-    const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
+    const modifyCartOnServer = async (itemId, change = 1, clear = false, storeId = store.id) => {
         try {
             const response = await fetch(CART_MOD_URL, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ itemId, change, clear }),
+                body: JSON.stringify({ itemId, change, clear, storeId }),
             });
 
             if (!response.ok) {
@@ -103,13 +117,16 @@ const StoreDetail = () => {
             setCartFinalPrice(data.finalPrice);
         } catch (err) {
             console.error("Cart modification exception:", err);
+            navigate("/login", { replace: true });
         }
     };
 
     const handlePay = () => {
         if (cartFinalPrice > 0) {
-            navigate("/payment", { state: { cart, cartFinalPrice } });
-
+            localStorage.setItem("storeId", store.id);
+            navigate("/payment", {
+                state: { cart, cartFinalPrice, storeId: store.id }
+            });
         }
     };
 
@@ -119,8 +136,8 @@ const StoreDetail = () => {
 
     return (
         <div
-            className="bg-gray-900 text-white w-full y-full"
-            style={{ paddingTop: "64px" }}
+            className="bg-gray-900 text-white w-screen min-h-screen"
+            style={{ paddingTop: "64px", width: "100vw" }}
         >
             {/* custom Navbar */}
             <Navbar />
@@ -129,7 +146,7 @@ const StoreDetail = () => {
             <div className="w-full relative">
                 <img src={store?.banner || SharedUrl.P_BACKDROP_URL}
                     alt="Banner" className="w-full h-32 relative object-cover"
-                    style={{ height: "138px", bottom: "20px" }} // original 128px + 10px
+                    style={{ height: "138px", bottom: "20px" }}
                 />
                 <img
                     src={store?.icon || SharedUrl.P_ICON_URL}
@@ -140,8 +157,8 @@ const StoreDetail = () => {
             </div>
 
             {/* Store Info */}
-            <div className="pt-2 px-44">
-                <h1 className="text-xl font-semibold leading-[1]">{store?.name}</h1>
+            <div className="pt-2 px-44" style={{ marginTop: '-20px' }}>
+                <h1 className="text-xxl font-semibold leading-[1]">{store?.name}</h1>
                 <p className="text-gray-300 mt-3 leading-[1]">
                     {store?.description || "Placeholder Description Text"}
                 </p>
@@ -149,18 +166,18 @@ const StoreDetail = () => {
 
             {/* Main Grid Layout */}
             <div
-                className="grid gap-3 mt-4 px-3"
+                className="grid gap-4 mt-4 px-5"
                 style={{ gridTemplateColumns: "minmax(150px, 1fr) 3fr minmax(250px, 1fr)" }}
             >
                 {/* Left Sidebar - Categories */}
                 <div
-                    className="sticky bg-gray-900 pr-1 sticky top-28 h-[80vh]"
-                    style={{ top: "64px" }}
+                    className="sticky bg-gray-900 pr-1 sticky top-28 h-[80vh] w-105"
+                    style={{ top: "84px" }}
                 >
-                    {store?.itemGroups?.map((group) => (
+                    {store?.itemGroups?.filter((group) => store.items?.some((item) => item.itemGroupIds?.includes(group.name))).map((group) => (
                         <button
                             key={group.name}
-                            onClick={() => setActiveCategory(group.name)}
+                            onClick={() => scrollToGroup(group.name)}
                             className={`w-full text-left px-4 py-2 mb-2 rounded-lg transition-colors ${activeCategory === group.name
                                 ? "bg-green-400 text-black font-semibold"
                                 : "bg-gray-800 text-white hover:bg-gray-700"
@@ -171,47 +188,64 @@ const StoreDetail = () => {
                     ))}
                 </div>
 
-                {/* Items */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* Items: grouped by category with scroll targets */}
+                <div ref={itemsContainerRef} className="space-y-6 overflow-y-auto h-[80vh] pr-2">
                     {(!store?.items || store.items.length === 0) ? (
-                        <h1 className="text-xl font-semibold">
-                            No items available, check back later!
-                        </h1>
+                        <h1 className="text-xl font-semibold">No items available, check back later!</h1>
                     ) : (
-                        store.items
-                            .filter(
-                                (item) =>
-                                    item.itemGroupIds?.includes(activeCategory) || activeCategory === "popular"
-                            )
-                            .map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-                                >
-                                    <img
-                                        src={item.image || SharedUrl.P_BACKDROP_URL}
-                                        alt={item.name}
-                                        className="h-48 w-full object-cover"
-                                    />
-                                    <div className="px-3 py-2 flex flex-col justify-between leading-[2]">
-                                        <div>
-                                            <div className="flex items-center justify-between mb-[1] leading-[1]">
-                                                <h3 className="text-xl font-semibold leading-[1] whitespace-normal break-words">
-                                                    {item.name}
-                                                </h3>
-                                                <p className="mt-2 font-bold leading-[1]">{item.price} €</p>
-                                            </div>
-                                            <p className="text-gray-300 mt-1 leading-[1.1]">{item.description || ""}</p>
+                        store.itemGroups
+                            ?.filter((group) => store.items?.some((item) => item.itemGroupIds?.includes(group.name)))
+                            .map((group, gi) => {
+                                const groupItems = store.items.filter((item) => item.itemGroupIds?.includes(group.name));
+                                return (
+                                    <div key={group.name} ref={(el) => (groupRefs.current[group.name] = el)} className="w-full">
+                                        <h2 className="text-s font-semibold mb-2" style={{ scrollMarginTop: '80px' }}>{group.name}</h2>
+
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {groupItems.length === 0 ? (
+                                                <p className="text-gray-400">No items in this category</p>
+                                            ) : (
+                                                groupItems.map((item) => (
+                                                    <div
+                                                        key={item.id}
+                                                        className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
+                                                    >
+                                                        <img
+                                                            src={item.image || SharedUrl.P_BACKDROP_URL}
+                                                            alt={item.name}
+                                                            className="h-48 w-full object-cover"
+                                                        />
+                                                        <div className="px-3 py-2 flex flex-col justify-between leading-[2]">
+                                                            <div>
+                                                                <div className="flex items-center justify-between mb-[1] leading-[1]">
+                                                                    <h3 className="text-xl font-semibold leading-[1] whitespace-normal break-words">
+                                                                        {item.name}
+                                                                    </h3>
+
+                                                                    <p className="mt-2 font-bold">{item.price} €</p>
+                                                                </div>
+                                                                <p className=" leading-[1] text-gray-400 whitespace-normal break-words">
+                                                                    {item.description}
+                                                                </p>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => addToCart(item)}
+                                                                className="mb-1 leading-[1] bg-green-400 text-black px-3 py-2 rounded hover:bg-green-500 transition"
+                                                            >
+                                                                Add to Cart
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
-                                        <button
-                                            onClick={() => addToCart(item)}
-                                            className="mt-1 leading-[1] bg-green-400 text-black px-3 py-2 rounded hover:bg-green-500 transition"
-                                        >
-                                            Add to Cart
-                                        </button>
+
+                                        {gi < (store.itemGroups?.length || 0) - 1 && (
+                                            <div className="my-4 border-t border-gray-700" />
+                                        )}
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                     )}
                 </div>
 
@@ -222,7 +256,7 @@ const StoreDetail = () => {
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between mb-2 flex-shrink-0">
-                        <h2 className="text-lg font-semibold m-2 leading-[1]">Cart</h2>
+                        <h2 className="text-xxl font-semibold m-2 leading-[1]">Cart</h2>
                         <button
                             onClick={clearCart}
                             className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
@@ -237,20 +271,17 @@ const StoreDetail = () => {
                             <p className="text-gray-400">Your cart is empty</p>
                         ) : (
                             Object.values(cart).map(({ item, quantity }) => (
-                                <div key={item.id} className="flex items-center justify-between mb-2">
+                                <div key={item.id} className="flex items-center justify-between mb-2 p-1">
                                     <img
                                         src={item.image || SharedUrl.P_BACKDROP_URL}
                                         alt={item.name}
                                         className="w-16 h-16 object-cover rounded"
                                     />
                                     <div className="flex-1 px-2">
-                                        <p className="text-sm font-semibold leading-[1] m-0">{item.name}</p>
-                                        <p className="text-xs text-gray-300 leading-[1.2] m-0 whitespace-normal break-words">
-                                            {item.name}
-                                        </p>
-                                        <p className="text-sm font-bold leading-[2] m-0">{item.price} €</p>
+                                        <p className="text-xl font-semibold leading-[1] m-0">{item.name}</p>
+                                        <p className="text-m font-bold leading-[2] m-0">{(item.price * quantity).toFixed(2)} €</p>
                                     </div>
-                                    <div className="flex items-center space-x-2">
+                                    <div className="flex items-center space-x-1">
                                         <button
                                             onClick={() => removeFromCart(item)}
                                             className="bg-gray-700 px-2 rounded hover:bg-gray-600"
@@ -270,12 +301,15 @@ const StoreDetail = () => {
                         )}
                     </div>
 
-                    {/* Footer - always visible order button */}
+                    {/*order button */}
                     <div className="mt-2 flex-shrink-0">
                         <button
                             onClick={handlePay}
-                            className="w-full bg-green-600 text-white underline bold py-2 rounded hover:bg-green-800"
-                            disabled={Object.values(cart).length === 0}
+                            className={Object.values(cart).length === 0
+                                ? "w-full text-xl py-2 rounded bg-gray-600 text-gray-300 cursor-not-allowed"
+                                : "w-full text-xl py-2 rounded bg-green-600 text-white underline hover:bg-green-800"
+                            }
+                            disabled={Object.values(cart).length === 0 || cartFinalPrice < store.minOrder}
                         >
                             Order Total: {cartFinalPrice.toFixed(2)} €
                         </button>

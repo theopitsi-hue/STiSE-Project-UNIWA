@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.github.theopitsihue.stise_springroll.data.ItemGroup;
-import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekSchedule;
-import com.github.theopitsihue.stise_springroll.data.WeekScedule.WeekScheduleConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
 import java.util.*;
 
-@Entity //makes this class act like a database entity
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,9 +21,7 @@ import java.util.*;
 )
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Store {
-    //This table's collumns are represented as types and parameters in code.
-
-    @Id //defines this field as the primary key
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(
             name="id",
@@ -47,7 +44,7 @@ public class Store {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @JsonIgnore
-    private Set<Category> categories= new HashSet<>(); //katigories gia magazia, px souvlaki,pizza,ect
+    private Set<Category> categories= new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,13 +58,7 @@ public class Store {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
-    private Set<User> owners= new HashSet<>();
-
-    @Convert(converter = WeekScheduleConverter.class)
-    @Column(name = "schedule",nullable = false)
-    @JsonIgnore
-    @Builder.Default
-    private WeekSchedule schedule = new WeekSchedule();
+    private Set<User> owners = new HashSet<>();
 
     @Builder.Default
     private boolean forceClosed = false;
@@ -77,6 +68,20 @@ public class Store {
             name = "store_item_groups",
             joinColumns = @JoinColumn(name = "store_id")
     )
-    private Set<ItemGroup> itemGroups = new HashSet<>();
+    private Set<ItemGroup> itemGroups = new HashSet<>(); //for grouping items of a store together, (all ice cream, all burgers, ect)
 
+    private int deliveryTime = 10;
+    private BigInteger minOrder = BigInteger.ZERO;
+
+    public void setItems(List<Item> items){
+        this.items = new ArrayList<>();
+        int fin = 100;
+        for(Item i : items){
+            if (i.getPrice().intValue() < fin){
+                fin = i.getPrice().intValue();
+            }
+        }
+        minOrder = BigInteger.valueOf(fin);
+        this.items.addAll(items);
+    }
 }

@@ -18,18 +18,26 @@ public class CartModificationResponse {
     private BigDecimal finalPrice;
 
     public CartModificationResponse fromCart(Cart cart){
+        if (cart == null){
+            throw new RuntimeException("Cart doesn't exist!");
+        }
+
         finalPrice = BigDecimal.ZERO;
         items = new ArrayList<>();
-        cart.getItems().forEach(item -> {
-            CartItemResponse cartItem = new CartItemResponse(
-                    item.getItem().getId(),
-                    item.getItem().getName(),
-                    item.getItem().getPrice(),
-                    item.getQuantity()
-            );
-            items.add(cartItem);
-            finalPrice = finalPrice.add(cartItem.getTotal());
-        });
+
+        if (cart.getItems() != null) {
+            cart.getItems().forEach(item -> {
+                CartItemResponse cartItem = new CartItemResponse(
+                        item.getItem().getId(),
+                        item.getItem().getName(),
+                        item.getItem().getPrice(),
+                        item.getQuantity()
+                );
+                items.add(cartItem);
+                finalPrice = finalPrice.add(cartItem.getTotal());
+            });
+        }
+
         return this;
     }
 }

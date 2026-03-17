@@ -11,15 +11,13 @@ import com.github.theopitsihue.stise_springroll.request.cart.CartFinalizeRequest
 import com.github.theopitsihue.stise_springroll.request.cart.CartModificationRequest;
 import com.github.theopitsihue.stise_springroll.request.cart.CartModificationResponse;
 import com.github.theopitsihue.stise_springroll.service.*;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -38,140 +36,113 @@ public class CartResource {
         this.orderService = orderService;
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<?> getCart(@AuthenticationPrincipal CustomUserDetails userIn, HttpSession session) {
+    @GetMapping("/get/{slug}")
+    public ResponseEntity<?> getCart(
+            @AuthenticationPrincipal CustomUserDetails userIn,
+            @PathVariable String slug
+    ) {
         if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User not logged in"));
         }
 
-        Optional<User> user = Optional.ofNullable(userService.getUserByUsername(userIn.getUsername()));
+        User user = userService.getUserByUsername(userIn.getUsername());
+        Store store = storeService.getStoreBySlug(slug);
 
-        if (user.isEmpty()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not logged in or not registered."));
-        }
-
-        //get or create the cart if it doesn't exist
-        Cart cart = cartService.findByUser(user.get())
-                .orElseGet(() -> cartService.create(Cart.builder().user(user.get()).build()));
+        Cart cart = cartService.getOrCreate(user, store);
 
         return ResponseEntity.ok(new CartModificationResponse().fromCart(cart));
     }
 
     @PostMapping("/mod")
     public ResponseEntity<?> modifyCart(
-            @AuthenticationPrincipal CustomUserDetails userIn, @RequestBody CartModificationRequest req, HttpSession session) {
-
+            @AuthenticationPrincipal CustomUserDetails userIn,
+            @RequestBody CartModificationRequest req
+    ) {
         if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User not logged in"));
         }
 
-        // user is logged in, get their data
-        Optional<User> user = Optional.ofNullable(userService.getUserByUsername(userIn.getUsername()));
+        User user = userService.getUserByUsername(userIn.getUsername());
 
-        if (user.isEmpty()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not logged in or not registered."));
-        }
-
-        if (req.getChange() == 0 && !req.isClear()){
+        if (req.getChange() == 0 && !req.isClear()) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
                     .body(Map.of("error", "No change to cart detected."));
         }
 
-        //get or create the cart if it doesn't exist
-        Cart cart = cartService.findByUser(user.get())
-                .orElseGet(() -> cartService.create(Cart.builder().user(user.get()).build()));
-
-
-        if (req.isClear()){
+        if (req.isClear()) {
+            Store store = storeService.getStoreByID(req.getStoreId());
+            Cart cart = cartService.getOrCreate(user, store);
             cart.clear();
             cartService.save(cart);
             return ResponseEntity.ok(new CartModificationResponse().fromCart(cart));
         }
 
-        Item item = null;
-        try {
-            System.out.println(req.getItemId());
-            item = itemService.getItemByID(req.getItemId());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Requested Item UUID does Not exist."));
+        Item item = itemService.getItemByID(req.getItemId());
+        Store store = item.getStore();
+
+        if (store.isForceClosed()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Store is closed."));
         }
 
-        Store store = null;
-        try {
-            store = item.getStore();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Requested Store UUID does Not exist."));
+        if (!item.isAvailable()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Item unavailable."));
         }
 
-        if (store != null && item != null){
-            if (store.isForceClosed()){ //todo: add schedule closed
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", "Requested Store is closed."));
-            }
+        Cart cart = cartService.getOrCreate(user, store);
 
-            if (!item.isAvailable()){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", "Requested Item is unavailable."));
-            }
-
-            if (req.getChange() > 0){
-                cart.addItem(item,req.getChange());
-            }else{
-                cart.updateItem(item,req.getChange());
-            }
-
-            cart.setUpdatedAt(LocalDateTime.now());
+        if (cart.getStore() != null &&
+                !cart.getStore().getId().equals(store.getId())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Cart belongs to another store."));
         }
 
-        //save the modified cart
+        if (req.getChange() > 0) {
+            cart.addItem(item, req.getChange());
+        } else {
+            cart.updateItem(item, req.getChange());
+        }
+
         cartService.save(cart);
 
         return ResponseEntity.ok(new CartModificationResponse().fromCart(cart));
     }
 
-    @PostMapping("/fin")
-    public ResponseEntity<?> finalizeCart(@AuthenticationPrincipal CustomUserDetails userIn, @RequestBody CartFinalizeRequest req, HttpSession session) {
+    @PostMapping("/fin/{storeId}")
+    public ResponseEntity<?> finalizeCart(
+            @AuthenticationPrincipal CustomUserDetails userIn,
+            @PathVariable UUID storeId,
+            @RequestBody CartFinalizeRequest req
+    ) {
         if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "User not logged in"));
         }
 
-        // user is logged in, get their data
-        Optional<User> user = Optional.ofNullable(userService.getUserByUsername(userIn.getUsername()));
+        User user = userService.getUserByUsername(userIn.getUsername());
+        Store store = storeService.getStoreByID(storeId);
 
-        if (user.isEmpty()){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "User not logged in or not registered."));
+        Cart cart = cartService.getOrCreate(user, store);
+
+        if (cart.getItems().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Cart is empty."));
         }
 
-        //get or create the cart if it doesn't exist
-        Cart cart = cartService.findByUser(user.get())
-                .orElseGet(() -> cartService.create(Cart.builder().user(user.get()).build()));
+        UserAddress addr = userService.getUserAddress(req.getUserAddressID());
 
-        if (cart.getItems().isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Cart is empty, cannot finalize."));
+        if (addr == null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Invalid address."));
         }
 
-        if (req.getUserAddressID() == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Address is null, cannot finalize."));
-        }
+        Order order = orderService.create(
+                Order.createFromCart(cart, addr)
+        );
 
-        UserAddress selectedAddr = userService.getUserAddress(req.getUserAddressID());
-
-        if (selectedAddr == null){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Address is invalid, cannot finalize."));
-        }
-
-        Order order = orderService.create(Order.createFromCart(cart,selectedAddr));
-        return ResponseEntity.ok().body(Map.of("order_id",order.getId()));
+        return ResponseEntity.ok(Map.of("order_id", order.getId()));
     }
 }

@@ -18,16 +18,18 @@ public class OrderMapper {
                 .status(order.getStatus())
                 .totalPrice(order.getTotalPrice())
                 .createdAt(order.getCreatedAt())
+                .storeName(order.getStore().getName())
                 .lastUpdateStatusAt(order.getLastUpdateStatusAt())
                 .build();
     }
 
-    private static com.github.theopitsihue.stise_springroll.entity.order.OrderItemDTO toItemDTO(OrderItem item) {
+    private static OrderItemDTO toItemDTO(OrderItem item) {
         return OrderItemDTO.builder()
                 .itemId(item.getItem().getId())
                 .itemName(item.getItemNameAtOrder())
                 .quantity(item.getQuantity())
                 .priceAtOrder(item.getPriceAtOrder())
+                .storeID(item.getItem().getStore().getId())
                 .build();
     }
 }

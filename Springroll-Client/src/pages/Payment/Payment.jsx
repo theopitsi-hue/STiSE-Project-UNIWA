@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import SharedUrl from "../../api/sharedUrl";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Payment = () => {
-    const [method, setMethod] = useState("card");
-    const [cart, setCart] = useState({});
-    const [cartFinalPrice, setCartFinalPrice] = useState(0);
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const storedStoreId = localStorage.getItem("storeId");
+
+    const [method, setMethod] = useState("card");
+
+    const [cart, setCart] = useState(location.state?.cart || {});
+    const [storeId, setStoreId] = useState(
+        location.state?.storeId || storedStoreId
+    );
+    const [cartFinalPrice, setCartFinalPrice] = useState(location.state?.cartFinalPrice || 0);
 
     const [addresses, setAddresses] = useState([]);
     const [selectedAddress, setSelectedAddress] = useState("");
@@ -37,7 +44,7 @@ const Payment = () => {
 
     const finalizeCart = async () => {
         try {
-            const response = await fetch(`${SharedUrl.CART}/fin`, {
+            const response = await fetch(`${SharedUrl.CART}/fin/${storeId}`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -56,7 +63,7 @@ const Payment = () => {
             const data = await response.json();
             console.log("Payment successful:", data);
 
-            // optional: redirect after payment
+            //redirect after payment
             navigate("/orders");
         } catch (err) {
             console.error("Payment request failed:", err);
@@ -97,14 +104,13 @@ const Payment = () => {
     };
 
     useEffect(() => {
-        fetch(`${SharedUrl.CART}/get`, { credentials: "include" })
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                if (!data) return;
+        if (!storeId) return;
 
+        fetch(`${SharedUrl.CART}/get/${storeId}`, {
+            credentials: "include"
+        })
+            .then((res) => res.json())
+            .then((data) => {
                 const updatedCart = {};
                 data.items.forEach((ci) => {
                     updatedCart[ci.itemId] = {
@@ -121,49 +127,14 @@ const Payment = () => {
                 setCart(updatedCart);
                 setCartFinalPrice(data.finalPrice);
             })
-            .catch((err) => console.error(err));
-    }, []);
-
-    const modifyCartOnServer = async (itemId, change = 1, clear = false) => {
-        try {
-            const response = await fetch(SharedUrl.CART + "/modify", {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ itemId, change, clear }),
-            });
-
-            if (!response.ok) {
-                const errText = await response.text();
-                console.error("Cart modification error:", errText);
-                return;
-            }
-
-            const data = await response.json();
-            const updatedCart = {};
-            data.items.forEach((ci) => {
-                updatedCart[ci.itemId] = {
-                    item: {
-                        id: ci.itemId,
-                        name: ci.name,
-                        price: ci.price,
-                        image: ci.image || SharedUrl.P_BACKDROP_URL,
-                    },
-                    quantity: ci.quantity,
-                };
-            });
-
-            setCart(updatedCart);
-            setCartFinalPrice(data.finalPrice);
-        } catch (err) {
-            console.error("Cart modification exception:", err);
-        }
-    };
+            .catch(console.error);
+    }, [storeId]);
 
     const selectedLabel =
         Array.isArray(addresses)
             ? addresses.find((a) => a.id === selectedAddress)?.address
             : "Select delivery address";
+
 
     return (
         <div
