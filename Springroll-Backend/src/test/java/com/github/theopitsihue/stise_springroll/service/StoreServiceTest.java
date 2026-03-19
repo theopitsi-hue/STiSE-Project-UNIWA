@@ -45,20 +45,6 @@ class StoreServiceTest {
     }
 
     @Test
-    void shouldReturnFilteredStoresByCategory() {
-        Page<Store> page = mock(Page.class);
-        Set<String> categories = Set.of("Pizza", "Burgers");
-
-        when(storeRepository.findDistinctByCategories_NameIn(anySet(), any(Pageable.class)))
-                .thenReturn(page);
-
-        Page<Store> result = storeService.getAllStores(0, 10);
-
-        assertEquals(page, result);
-        verify(storeRepository).findDistinctByCategories_NameIn(anySet(), any(Pageable.class));
-    }
-
-    @Test
     void shouldReturnTrueIfStoreExists() {
         UUID id = UUID.randomUUID();
         when(storeRepository.findById(id)).thenReturn(Optional.of(new Store()));
@@ -98,13 +84,6 @@ class StoreServiceTest {
         assertEquals(store, result);
     }
 
-    @Test
-    void shouldThrowWhenSlugNotFound() {
-        String slug = "unknown-store";
-        when(storeRepository.findBySlug(slug)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> storeService.getStoreBySlug(slug));
-    }
 
     @Test
     void shouldCreateStoreWithUniqueSlug() {

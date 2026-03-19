@@ -80,6 +80,9 @@ public class User {
     private List<UserAddress> addresses = new ArrayList<>();
 
     public void addAddress(UserAddress address) {
+        if (this.addresses == null){
+            this.addresses = new ArrayList<>();
+        }
         addresses.add(address);
         address.setUser(this);
     }
