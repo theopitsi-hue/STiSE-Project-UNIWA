@@ -304,7 +304,7 @@ const Stores = () => {
                   </button>
                 )}
 
-                {/* Example: Fave icon (optional, same sibling pattern) */}
+                {/* {Example: Fave icon (optional, same sibling pattern)
                 {user?.role === 0 && (
                   <button
                     onClick={(e) => {
@@ -314,7 +314,7 @@ const Stores = () => {
                   >
                     <Heart className="w-4 h-4" />
                   </button>
-                )}
+                )}} */}
               </div>
             ))}
           </div>
