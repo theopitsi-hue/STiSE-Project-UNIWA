@@ -2,11 +2,17 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import SharedUrl from "../../api/sharedUrl";
 import Navbar from "../../components/Navbar";
+import { useUser } from "../../context/UserContext";
+
+import { Search, IceCream, Pizza, Coffee, Box, Shell, GlassWater, Plus, MoreHorizontal, Pencil, Heart } from "lucide-react";
 
 const CART_MOD_URL = SharedUrl.CART + "/mod";
 
 const StoreDetail = () => {
     const { slug } = useParams();
+
+    const { user } = useUser();
+
     const navigate = useNavigate();
     const [store, setStore] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -14,6 +20,10 @@ const StoreDetail = () => {
     const [cart, setCart] = useState({});
     const [cartFinalPrice, setCartFinalPrice] = useState(0);
     const groupRefs = useRef({});
+
+    const [showNewItemModal, setShowNewItemModal] = useState(false);
+    const [newItemData, setNewItemData] = useState({ name: "", description: "", price: "" });
+
     const itemsContainerRef = useRef(null);
 
     const scrollToGroup = (groupName) => {
@@ -24,6 +34,36 @@ const StoreDetail = () => {
             // scroll the container so the group header is at the top (respecting any sticky header)
             const offset = el.offsetTop - container.offsetTop - 8; // small offset
             container.scrollTo({ top: offset, behavior: 'smooth' });
+        }
+    };
+
+    const handleCreateItem = async () => {
+        if (!newItemData.name || !newItemData.price) return;
+
+        try {
+            const response = await fetch(`${SharedUrl.STORES}/${store.id}/items`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...newItemData,
+                    price: parseFloat(newItemData.price),
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to create item");
+
+            const createdItem = await response.json();
+
+            setStore((prev) => ({
+                ...prev,
+                items: [...prev.items, createdItem],
+            }));
+
+            setShowNewItemModal(false);
+            setNewItemData({ name: "", description: "", price: "" });
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -190,8 +230,17 @@ const StoreDetail = () => {
 
                 {/* Items: grouped by category with scroll targets */}
                 <div ref={itemsContainerRef} className="space-y-6 overflow-y-auto h-[80vh] pr-2">
+                    <div className="flex justify-end mb-2">
+                        <button
+                            onClick={() => setShowNewItemModal(true)}
+                            className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-600 text-white"
+                        >
+                            + New Item
+                        </button>
+                    </div>
                     {(!store?.items || store.items.length === 0) ? (
                         <h1 className="text-xl font-semibold">No items available, check back later!</h1>
+
                     ) : (
                         store.itemGroups
                             ?.filter((group) => store.items?.some((item) => item.itemGroupIds?.includes(group.name)))
@@ -316,7 +365,49 @@ const StoreDetail = () => {
                     </div>
                 </div>
 
-
+                {showNewItemModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-gray-900 p-6 rounded-lg w-96">
+                            <h2 className="text-xl font-semibold mb-4">Create New Item</h2>
+                            <div className="flex flex-col space-y-3">
+                                <input
+                                    type="text"
+                                    placeholder="Name"
+                                    value={newItemData.name}
+                                    onChange={(e) => setNewItemData({ ...newItemData, name: e.target.value })}
+                                    className="p-2 rounded bg-gray-800 text-white"
+                                />
+                                <textarea
+                                    placeholder="Description"
+                                    value={newItemData.description}
+                                    onChange={(e) => setNewItemData({ ...newItemData, description: e.target.value })}
+                                    className="p-2 rounded bg-gray-800 text-white"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Price"
+                                    value={newItemData.price}
+                                    onChange={(e) => setNewItemData({ ...newItemData, price: e.target.value })}
+                                    className="p-2 rounded bg-gray-800 text-white"
+                                />
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => setShowNewItemModal(false)}
+                                        className="px-3 py-1 rounded bg-gray-700 hover:bg-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleCreateItem}
+                                        className="px-3 py-1 rounded bg-green-500 hover:bg-green-600 text-white"
+                                    >
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

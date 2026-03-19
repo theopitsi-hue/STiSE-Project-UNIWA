@@ -97,9 +97,8 @@ const Stores = () => {
       .then(res => res.json())
       .then(data => {
         const catArr = Array.isArray(data) ? data : [];
-        // sort by numeric sortIndex (fallback to 0)
+        //sort by numeric sortIndex
         catArr.sort((a, b) => (Number(b.sortIndex) || 0) - (Number(a.sortIndex) || 0));
-        console.log(data);
         setCategories(catArr);
       })
       .catch(err => {
