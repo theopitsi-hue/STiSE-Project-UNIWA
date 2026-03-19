@@ -69,15 +69,15 @@ const Login = () => {
 
   return (
     <div
-      className="relative w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+      className="w-full min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
       style={{ backgroundImage: `url(${SharedUrl.SR_BANNER})` }}
     >
-      {/* Slight black overlay (fixed to cover full viewport) */}
-      <div className="fixed inset-0 bg-black/50 z-0 pointer-events-none"></div>
+      {/* Slight black overlay */}
+      <div className="absolute inset-0 bg-black/25 z-0"></div>
 
 
       {/* Logo + Text above login card */}
-      <div className="flex items-center z-20">
+      <div className="flex items-center z-10">
         <img
           src={SharedUrl.SR_LOGO}
           alt="Logo"
@@ -94,7 +94,7 @@ const Login = () => {
       </div>
 
       {/* Login card */}
-      <div className="w-full max-w-[480px] p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6 relative z-30 border-2 border-green-800 mx-auto">
+      <div className="w-full max-w-[480px] p-6 sm:p-8 bg-[#0f0f0f] rounded-2xl shadow-lg space-y-6 relative border-2 border-green-800">
 
         {/* Popup */}
         {showPopup && (
@@ -149,6 +149,13 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          {!isLoginMode &&
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="w-full px-5 py-3 rounded-xl bg-gray-800 text-white outline-none focus:ring-2 focus:ring-green-400"
+            />
+          }
 
           {isLoginMode &&
             <div className="text-right">

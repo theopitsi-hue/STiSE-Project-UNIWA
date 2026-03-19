@@ -22,10 +22,6 @@ class SharedUrl {
     static CART = this.API + "/cart"
     static ADDR = this.API + "/account/addr"
     static ORD = this.API + "/orders"
-
-    //media urls
-    static MEDIA = "http://localhost:8080/media"
-    static MEDIA_STORES = this.MEDIA + "/stores"
 }
 
 export default SharedUrl;

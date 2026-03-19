@@ -62,8 +62,7 @@ public class WebSecurityConfig {
                         .requestMatchers(
                                 "/api/account/auth/login",
                                 "/api/account/auth/register",
-                                "/images/**",
-                                "/api/photos/**"
+                                "/images/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
