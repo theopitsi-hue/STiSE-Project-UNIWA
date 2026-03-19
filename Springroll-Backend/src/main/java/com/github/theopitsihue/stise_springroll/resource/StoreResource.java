@@ -4,6 +4,9 @@ import com.github.theopitsihue.stise_springroll.config.security.CustomUserDetail
 import com.github.theopitsihue.stise_springroll.entity.Category;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
+import com.github.theopitsihue.stise_springroll.entity.dto.StoreDTO;
+import com.github.theopitsihue.stise_springroll.entity.dto.StoreListDTO;
+import com.github.theopitsihue.stise_springroll.entity.dto.StoreMapper;
 import com.github.theopitsihue.stise_springroll.request.StoreRequest;
 import com.github.theopitsihue.stise_springroll.service.CategoryService;
 import com.github.theopitsihue.stise_springroll.service.StoreService;
@@ -31,14 +34,22 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
     }
 
     @GetMapping
-    public List<Store> getAllStores(@AuthenticationPrincipal CustomUserDetails userIn, @RequestParam(required = false) Set<String> category) {
-        return storeService.getAllStores(0, 100).getContent();
+    public List<StoreListDTO> getAllStores(
+            @AuthenticationPrincipal CustomUserDetails userIn,
+            @RequestParam(required = false) Set<String> category
+    ) {
+        return storeService.getAllStores(0, 100)
+                .getContent()
+                .stream()
+                .map(StoreMapper::toListDTO)
+                .toList();
     }
 
     //specific store
     @GetMapping("/{slug}") //ex. springroll/stores/ABCD -> test store profile
-    public Store getStore(@AuthenticationPrincipal CustomUserDetails userIn, @PathVariable String slug) {
-        return storeService.getStoreBySlug(slug);
+    public ResponseEntity<StoreDTO> getStore(@AuthenticationPrincipal CustomUserDetails userIn, @PathVariable String slug) {
+        Optional<Store> store =  storeService.getStoreBySlug(slug);
+        return ResponseEntity.ok(StoreMapper.toDTO(store.get()));
     }
 
     @PostMapping
@@ -75,7 +86,7 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
 
             Store saved = storeService.createStore(store);
 
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(StoreMapper.toDTO(saved));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -115,7 +126,7 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
 
             Store updated = storeService.save(store);
 
-            return ResponseEntity.ok(updated);
+            return ResponseEntity.ok(StoreMapper.toDTO(updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

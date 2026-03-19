@@ -1,6 +1,8 @@
 package com.github.theopitsihue.stise_springroll.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,7 +35,6 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
-    @JsonBackReference
     private Store store; // The store this item belongs to
 
 

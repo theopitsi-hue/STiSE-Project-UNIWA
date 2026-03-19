@@ -29,7 +29,7 @@ public class OrderMapper {
                 .itemName(item.getItemNameAtOrder())
                 .quantity(item.getQuantity())
                 .priceAtOrder(item.getPriceAtOrder())
-                .storeID(item.getItem().getStore().getId())
+                .storeID(item.getItem().getStore() != null ? item.getItem().getStore().getId() : null)
                 .build();
     }
 }

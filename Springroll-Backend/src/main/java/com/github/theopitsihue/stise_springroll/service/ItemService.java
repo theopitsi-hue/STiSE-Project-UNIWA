@@ -28,7 +28,7 @@ public class ItemService { //business logic
         return itemRepo.findAll(PageRequest.of(page,size, Sort.by("id")));
     }
 
-    public boolean itemExists(UUID id){
+    public boolean itemExists(long id){
         return itemRepo.findById(id).isPresent();
     }
 
@@ -37,15 +37,29 @@ public class ItemService { //business logic
     }
 
 
-    public Item createItem(@NotNull Item store){
-        return itemRepo.save(store);
+    public Item createItem(@NotNull Item item){
+        return itemRepo.save(item);
     }
 
-    public void deleteItemByID(UUID id){
+    public void deleteItemByID(Long id){
         itemRepo.deleteById(id);
     }
 
     public void deleteAll() {
         itemRepo.deleteAll();
+    }
+
+    public Item updateItem(Long itemId, Item updatedItem) {
+        Item existing = itemRepo.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+
+        existing.setName(updatedItem.getName());
+        existing.setDescription(updatedItem.getDescription());
+        existing.setPrice(updatedItem.getPrice());
+        existing.setAvailable(updatedItem.isAvailable());
+        existing.setItemGroupIds(updatedItem.getItemGroupIds());
+        existing.setStore(updatedItem.getStore()); // keep the store reference if included
+
+        return itemRepo.save(existing);
     }
 }

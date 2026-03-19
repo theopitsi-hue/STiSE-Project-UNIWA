@@ -49,7 +49,6 @@ public class Store {
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private List<Item> items = new ArrayList<>(); // All items for sale in this store
 
     @ManyToOne

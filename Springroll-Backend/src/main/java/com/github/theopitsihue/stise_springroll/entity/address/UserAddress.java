@@ -1,5 +1,7 @@
 package com.github.theopitsihue.stise_springroll.entity.address;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;

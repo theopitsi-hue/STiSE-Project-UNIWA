@@ -1,6 +1,5 @@
 package com.github.theopitsihue.stise_springroll.service;
 
-import com.github.theopitsihue.stise_springroll.entity.Item;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.repository.StoreRepository;
@@ -10,13 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,8 +43,8 @@ public class StoreService { //business logic
         return getStoreByID(UUID.fromString(id));
     }
 
-    public Store getStoreBySlug(String slug){
-        return storeRepo.findBySlug(slug).orElseThrow(()->new RuntimeException("Store with slug: "+slug+" not found."));
+    public Optional<Store> getStoreBySlug(String slug){
+        return storeRepo.findBySlug(slug);
     }
 
     public Store createStore(@NotNull Store store){

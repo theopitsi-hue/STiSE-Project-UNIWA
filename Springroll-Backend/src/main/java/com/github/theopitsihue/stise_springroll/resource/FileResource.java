@@ -21,10 +21,10 @@ public class FileResource {
     private static final String UPLOAD_DIR = "media/";
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadPhoto(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<String> uploadPhoto(@RequestParam(value = "file", required = false) MultipartFile file,
                                                       @RequestParam(value = "filename", required = false) String filename) {
 
-        if (file.isEmpty()) {
+        if (file == null || file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty");
         }
 

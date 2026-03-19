@@ -17,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -36,10 +37,10 @@ public class CartResource {
         this.orderService = orderService;
     }
 
-    @GetMapping("/get/{slug}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<?> getCart(
             @AuthenticationPrincipal CustomUserDetails userIn,
-            @PathVariable String slug
+            @PathVariable String id
     ) {
         if (userIn == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -47,9 +48,37 @@ public class CartResource {
         }
 
         User user = userService.getUserByUsername(userIn.getUsername());
-        Store store = storeService.getStoreBySlug(slug);
+        Store store = storeService.getStoreByID(id);
+
+        if (store == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "No such store!"));
+        }
 
         Cart cart = cartService.getOrCreate(user, store);
+
+        return ResponseEntity.ok(new CartModificationResponse().fromCart(cart));
+    }
+
+    @GetMapping("/get/bs/{id}")
+    public ResponseEntity<?> getCartSlug(
+            @AuthenticationPrincipal CustomUserDetails userIn,
+            @PathVariable String id
+    ) {
+        if (userIn == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User not logged in"));
+        }
+
+        User user = userService.getUserByUsername(userIn.getUsername());
+        Optional<Store> store = storeService.getStoreBySlug(id);
+
+        if (store.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "No such store!"));
+        }
+
+        Cart cart = cartService.getOrCreate(user, store.get());
 
         return ResponseEntity.ok(new CartModificationResponse().fromCart(cart));
     }

@@ -476,7 +476,7 @@ const Stores = () => {
                       const createdStore = await createRes.json();
                       const storeSlug = createdStore.slug;
 
-                      if (storeImageFile) {
+                      if (storeImageFile instanceof File) {
                         const bannerFilename = `stores/${storeSlug}/${storeSlug}_banner.png`;
 
                         const formData = new FormData();
