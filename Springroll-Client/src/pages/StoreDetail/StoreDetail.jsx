@@ -87,6 +87,24 @@ const StoreDetail = () => {
 
             const savedItem = await res.json();
 
+            if (itemImage instanceof File) {
+                const filename = `items/${store.slug}/${savedItem.id}.png`;
+
+                const formData = new FormData();
+                formData.append("file", itemImage);
+                formData.append("filename", filename);
+
+                const uploadRes = await fetch("http://localhost:8080/api/photos/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!uploadRes.ok) {
+                    const txt = await uploadRes.text().catch(() => "");
+                    throw new Error(txt || `Image upload failed: HTTP ${uploadRes.status}`);
+                }
+            }
+
             setStore(prev => {
                 const updatedItems = editingItem
                     ? prev.items.map(i => (i.id === savedItem.id ? savedItem : i))
@@ -268,9 +286,13 @@ const StoreDetail = () => {
                                                 <div key={item.id} className="bg-gray-800 rounded-lg overflow-hidden shadow hover:shadow-lg transition">
                                                     <div className="relative">
                                                         <img
-                                                            src={item.image || SharedUrl.P_BACKDROP_URL}
+                                                            src={`${SharedUrl.MEDIA_ITEMS}/${store.slug}/${item.id}.png?ts=${Date.now()}`}
                                                             alt={item.name}
                                                             className="h-48 w-full object-cover"
+                                                            onError={(e) => {
+                                                                e.currentTarget.onerror = null; // prevent infinite loop
+                                                                e.currentTarget.src = SharedUrl.P_BACKDROP_URL;
+                                                            }}
                                                         />
 
                                                         {/* Top-right edit button */}
@@ -323,7 +345,10 @@ const StoreDetail = () => {
                         {Object.values(cart).length === 0 ? <p className="text-gray-400">Your cart is empty</p> :
                             Object.values(cart).map(({ item, quantity }) => (
                                 <div key={item.id} className="flex items-center justify-between mb-2 p-1">
-                                    <img src={item.image || SharedUrl.P_BACKDROP_URL} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                                    <img src={`${SharedUrl.MEDIA_ITEMS}/${store.slug}/${item.id}.png?ts=${Date.now()}`} alt={item.name} className="w-16 h-16 object-cover rounded" onError={(e) => {
+                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                        e.currentTarget.src = SharedUrl.P_BACKDROP_URL;
+                                    }} />
                                     <div className="flex-1 px-2">
                                         <p className="text-xl font-semibold leading-[1]">{item.name}</p>
                                         <p className="text-m font-bold leading-[2]">{(item.price * quantity).toFixed(2)} €</p>

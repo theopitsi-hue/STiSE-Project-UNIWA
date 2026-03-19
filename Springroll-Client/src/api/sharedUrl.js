@@ -27,6 +27,7 @@ class SharedUrl {
     //media urls
     static MEDIA = "http://localhost:8080/media"
     static MEDIA_STORES = this.MEDIA + "/stores"
+    static MEDIA_ITEMS = this.MEDIA + "/items"
 }
 
 export default SharedUrl;

@@ -1,5 +1,6 @@
 package com.github.theopitsihue.stise_springroll.service;
 
+import com.github.theopitsihue.stise_springroll.data.ItemGroup;
 import com.github.theopitsihue.stise_springroll.entity.Store;
 import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.repository.StoreRepository;
@@ -13,12 +14,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @Slf4j
 @Transactional(rollbackOn = Exception.class)
 public class StoreService { //business logic
+
     private final StoreRepository storeRepo;
 
     //Dependency injection
@@ -50,6 +53,7 @@ public class StoreService { //business logic
     public Store createStore(@NotNull Store store){
         String uniqueSlug = Utils.generateUniqueSlug(store.getName(), storeRepo::existsBySlug);
         store.setSlug(uniqueSlug);
+        store.setItemGroups(groups);
         return storeRepo.save(store);
     }
 
@@ -84,4 +88,24 @@ public class StoreService { //business logic
 
         return storeRepo.save(store);
     }
+
+
+
+    ItemGroup groupPopular = new ItemGroup("Popular", 10);
+    ItemGroup groupPizza = new ItemGroup("Pizza", 3);
+    ItemGroup groupMilkshakes = new ItemGroup("Milkshakes", 0);
+    ItemGroup groupBurgers = new ItemGroup("Burgers", 3);
+    ItemGroup groupBao = new ItemGroup("Bao Buns", 2);
+    ItemGroup groupSashimi = new ItemGroup("Sashimi", 1);
+    ItemGroup groupRolls = new ItemGroup("Rolls", 3);
+    ItemGroup groupDeals = new ItemGroup("Deals", 9);
+    ItemGroup groupYogurt = new ItemGroup("Yogurt", 0);
+    ItemGroup groupSides = new ItemGroup("Sides", 2);
+    ItemGroup groupDrinks = new ItemGroup("Drinks", 0);
+    ItemGroup groupDesserts = new ItemGroup("Desserts", 0);
+    ItemGroup groupSpecials = new ItemGroup("Specials", 8);
+
+    Set<ItemGroup> groups = Set.of(
+            groupPopular,groupPizza,groupMilkshakes,groupBurgers,groupBao,groupSashimi,groupRolls,groupDeals,groupYogurt,groupSides,groupDrinks,groupDesserts,groupSpecials
+    );
 }

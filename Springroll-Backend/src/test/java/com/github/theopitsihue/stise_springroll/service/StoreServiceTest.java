@@ -93,7 +93,7 @@ class StoreServiceTest {
 
         when(storeRepository.findBySlug(slug)).thenReturn(Optional.of(store));
 
-        Store result = storeService.getStoreBySlug(slug);
+        Store result = storeService.getStoreBySlug(slug).get();
 
         assertEquals(store, result);
     }

@@ -276,6 +276,7 @@ const Stores = () => {
                     backgroundImage: `url(${SharedUrl.MEDIA_STORES}/${store.slug}/${store.slug}_banner.png?ts=${Date.now()})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
+
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
