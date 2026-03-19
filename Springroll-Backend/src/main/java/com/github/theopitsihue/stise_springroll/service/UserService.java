@@ -84,7 +84,9 @@ public class UserService { //business logic
                 throw new BadCredentialsException("Password is incorrect");
             }
 
-            return new AuthData(user.getUsername(),true, user.getPrivilege().ordinal());
+            User.Role role = user.getPrivilege() == null ? User.Role.CLIENT : user.getPrivilege();
+
+            return new AuthData(user.getUsername(),true, role.ordinal());
         }
 
         return new AuthData(null, false, 0);

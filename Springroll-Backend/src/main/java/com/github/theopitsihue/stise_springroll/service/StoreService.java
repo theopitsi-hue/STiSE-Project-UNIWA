@@ -34,18 +34,6 @@ public class StoreService { //business logic
         return storeRepo.findAll(PageRequest.of(page,size, Sort.by("id")));
     }
 
-    public Page<Store> getAllStores(Set<String> categories, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-
-        if (categories == null || categories.isEmpty()) {
-            return storeRepo.findAll(pageable);
-        }
-
-        return storeRepo.findDistinctByCategories_NameIn(categories, pageable);
-    }
-
-
 
     public boolean storeExists(UUID id){
         return storeRepo.findById(id).isPresent();
@@ -81,8 +69,7 @@ public class StoreService { //business logic
     /// Checks if a user can edit a store based on their access level.
     public boolean canEditStore(User user, Store store) {
         if (user.getPrivilege() == User.Role.ADMIN) return true;
-        if (user.getPrivilege() ==  User.Role.SHOP_OWNER && store.getOwners().contains(user)) return true;
-        return false;
+        return user.getPrivilege() == User.Role.SHOP_OWNER && store.getOwner() == user;
     }
 
     public Store updateStore(UUID id, Store updatedStore, User currentUser) {
@@ -97,5 +84,8 @@ public class StoreService { //business logic
     }
 
 
+    public Store save(Store store) {
 
+        return storeRepo.save(store);
+    }
 }

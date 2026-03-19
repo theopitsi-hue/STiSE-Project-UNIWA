@@ -52,7 +52,7 @@ class StoreServiceTest {
         when(storeRepository.findDistinctByCategories_NameIn(anySet(), any(Pageable.class)))
                 .thenReturn(page);
 
-        Page<Store> result = storeService.getAllStores(categories, 0, 10);
+        Page<Store> result = storeService.getAllStores(0, 10);
 
         assertEquals(page, result);
         verify(storeRepository).findDistinctByCategories_NameIn(anySet(), any(Pageable.class));
@@ -151,7 +151,7 @@ class StoreServiceTest {
         owner.setPrivilege(User.Role.SHOP_OWNER);
 
         Store store = new Store();
-        store.setOwners(Set.of(owner));
+        store.setOwner(owner);
 
         assertTrue(storeService.canEditStore(owner, store));
     }
@@ -162,7 +162,7 @@ class StoreServiceTest {
         user.setPrivilege(User.Role.CLIENT);
 
         Store store = new Store();
-        store.setOwners(Set.of());
+        store.setOwner(null);
 
         assertFalse(storeService.canEditStore(user, store));
     }

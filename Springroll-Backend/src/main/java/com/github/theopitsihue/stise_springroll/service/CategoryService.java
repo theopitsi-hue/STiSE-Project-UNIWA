@@ -13,7 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -49,6 +49,24 @@ public class CategoryService {//business logic
 
     public void deleteAll() {
         catRepo.deleteAll();
+    }
+
+
+    public Set<Category> getCategoriesByIds(List<Long> categories) {
+        Set<Category> cats = new HashSet<>();
+        for(Long id:categories){
+            Optional<Category> opt = catRepo.findById(id);
+            opt.ifPresent(cats::add);
+        }
+        return cats;
+    }
+
+    public Category save(Category category) {
+        return catRepo.save(category);
+    }
+
+    public boolean existsByName(String name) {
+        return catRepo.existsByName(name);
     }
 }
 
