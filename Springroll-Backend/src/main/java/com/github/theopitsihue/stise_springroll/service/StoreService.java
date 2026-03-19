@@ -69,7 +69,7 @@ public class StoreService { //business logic
     /// Checks if a user can edit a store based on their access level.
     public boolean canEditStore(User user, Store store) {
         if (user.getPrivilege() == User.Role.ADMIN) return true;
-        return user.getPrivilege() == User.Role.SHOP_OWNER && store.getOwners().contains(user);
+        return user.getPrivilege() == User.Role.SHOP_OWNER && store.getOwner() == user;
     }
 
     public Store updateStore(UUID id, Store updatedStore, User currentUser) {

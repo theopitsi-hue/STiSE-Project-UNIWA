@@ -59,7 +59,7 @@ public class StoreResource { //to api mas, gia na mporei na sindethei kai na par
 
         try {
             User owner = userService.getUserByEmail(request.getOwnerEmail());
-            if (owner.getPrivilege() != User.Role.SHOP_OWNER){
+            if (owner.getPrivilege() == User.Role.CLIENT){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provided user is not an owner account.");
             }
 

@@ -52,14 +52,9 @@ public class Store {
     @JsonManagedReference
     private List<Item> items = new ArrayList<>(); // All items for sale in this store
 
-    @ManyToMany
-    @JoinTable(
-            name = "store_owners",
-            joinColumns = @JoinColumn(name = "store_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    @JsonIgnore
-    private Set<User> owners = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @Builder.Default
     private boolean forceClosed = false;
@@ -84,10 +79,5 @@ public class Store {
         }
         minOrder = BigInteger.valueOf(fin);
         this.items.addAll(items);
-    }
-
-    public void setOwner(User user){
-        this.owners.clear();
-        this.owners.add(user);
     }
 }

@@ -4,6 +4,7 @@ import SharedUrl from "../../api/sharedUrl";
 import Navbar from "../../components/Navbar";
 import { Search, IceCream, Pizza, Coffee, Box, Shell, GlassWater, Plus, MoreHorizontal, Pencil, Heart } from "lucide-react";
 import { useUser } from "../../context/UserContext";
+import PhotoUpload from "../../components/PhotoUpload";
 
 const Stores = () => {
   const [stores, setStores] = useState([]);
@@ -36,6 +37,8 @@ const Stores = () => {
   const [createError, setCreateError] = useState("");
   const [editingStore, setEditingStore] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [storeImageFile, setStoreImageFile] = useState(null);
 
   const carouselImages = [
     SharedUrl.SR_BANNER1,
@@ -82,6 +85,7 @@ const Stores = () => {
     setNewMinOrder(typeof store.minOrder === 'number' ? store.minOrder : parseInt(store.minOrder) || 0);
     setNewDeliveryTime(typeof store.deliveryTime === 'number' ? store.deliveryTime : parseInt(store.deliveryTime) || 0);
     setNewOwnerEmail(store.ownerEmail || (store.owner && store.owner.email) || "");
+    setStoreImageFile(`${SharedUrl.MEDIA_STORES}/${store.slug}/${store.slug}_banner.png?ts=${Date.now()}`)
     setNewSelectedCategories(Array.isArray(store.categories) ? store.categories : []);
     setCreateError("");
     setShowCreateModal(true);
@@ -269,21 +273,15 @@ const Stores = () => {
                   onClick={() => navigate(`/stores/${store.slug}`)}
                   className="absolute inset-0 w-full h-full rounded-lg overflow-hidden shadow hover:shadow-xl transition text-left group border-2 border-green-800"
                   style={{
-                    backgroundImage: `url(${store.image || SharedUrl.P_BACKDROP_URL})`,
+
+                    backgroundImage: `url(${SharedUrl.MEDIA_STORES}/${store.slug}/${store.slug}_banner.png?ts=${Date.now()})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
-                  <div className="relative z-10 px-3 h-full flex flex-col justify-end">
-                    <div className="flex items-center gap-2 mb-1">
-                      <img
-                        src={store.icon || SharedUrl.P_ICON_URL}
-                        alt={store.name}
-                        className="w-14 h-14 rounded-full border-2 border-white"
-                      />
-                      <h3 className="text-lg font-semibold">{store.name}</h3>
-                    </div>
+                  <div className="relative z-10 px-2 h-full flex flex-col justify-end">
+                    <h3 className="text-lg font-semibold">{store.name}</h3>
                     <p className="text-gray-300 line-clamp-2">
                       {store.description || "No description available"}
                     </p>
@@ -329,10 +327,15 @@ const Stores = () => {
         <>
           <div className="fixed inset-0 bg-black/60 z-30" onClick={() => !creating && setShowCreateModal(false)} />
           <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
-            <form onSubmit={e => e.preventDefault()} className="w-full max-w-lg bg-gray-800 rounded-lg p-6 shadow-lg">
-              <h3 className="text-2xl font-semibold mb-4 text-white"> Store Editing</h3>
+
+
+            <form onSubmit={e => e.preventDefault()} className="w-full max-w-lg bg-gray-800 rounded-lg p-3 shadow-lg">
+              <h3 className="text-2xl font-semibold mb-1 text-white"> Store Editing</h3>
               {createError && <p className="text-red-400 mb-2">{createError}</p>}
-              <div className="space-y-3">
+
+              <label className="block text-sm text-gray-300 mb-1">Store Banner</label>
+              <PhotoUpload onFileSelect={setStoreImageFile} preview={storeImageFile} />
+              <div className="space-y-1">
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Name</label>
                   <input value={newName} onChange={e => setNewName(e.target.value)} className="w-full px-3 py-2 rounded bg-gray-700 text-white outline-none" required />
@@ -427,48 +430,92 @@ const Stores = () => {
                   >{deleting ? 'Deleting...' : 'Delete'}</button>
                 )}
 
-                <button type="button" disabled={confirmDisabled} onClick={async () => {
-                  setCreateError("");
-                  if (!newName.trim()) { setCreateError("Name is required"); return; }
-                  if (!newOwnerEmail.trim() || !isValidEmail(newOwnerEmail)) { setCreateError("Valid owner email is required"); return; }
-                  if (newSelectedCategories.length === 0) { setCreateError("At least one category is required"); return; }
-                  setCreating(true);
-                  try {
-                    const payload = {
-                      name: newName,
-                      description: newDescription,
-                      minOrder: Number.isFinite(Number(newMinOrder)) ? Number(newMinOrder) : 0,
-                      deliveryTime: Number.isFinite(Number(newDeliveryTime)) ? Number(newDeliveryTime) : 0,
-                      ownerEmail: newOwnerEmail,
-                      categories: newSelectedCategories.map(c => c.id)
-                    };
+                <button
+                  type="button"
+                  disabled={confirmDisabled}
+                  onClick={async () => {
+                    setCreateError("");
+                    if (!newName.trim()) { setCreateError("Name is required"); return; }
+                    if (!newOwnerEmail.trim() || !isValidEmail(newOwnerEmail)) { setCreateError("Valid owner email is required"); return; }
+                    if (newSelectedCategories.length === 0) { setCreateError("At least one category is required"); return; }
 
-                    let res;
-                    if (editingStore && editingStore.id) {
-                      // Edit existing store
-                      res = await fetch(`${SharedUrl.STORES}/${editingStore.id}`, { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    } else {
-                      // Create new store
-                      res = await fetch(SharedUrl.STORES, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    setCreating(true);
+
+                    try {
+                      const payload = {
+                        name: newName,
+                        description: newDescription,
+                        minOrder: Number.isFinite(Number(newMinOrder)) ? Number(newMinOrder) : 0,
+                        deliveryTime: Number.isFinite(Number(newDeliveryTime)) ? Number(newDeliveryTime) : 0,
+                        ownerEmail: newOwnerEmail,
+                        categories: newSelectedCategories.map(c => c.id)
+                      };
+
+                      var createRes = null;
+                      if (!editingStore) {
+                        createRes = await fetch(SharedUrl.STORES, {
+                          method: "POST",
+                          credentials: "include",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(payload)
+                        })
+
+                      } else {
+                        createRes = await fetch(`${SharedUrl.STORES}/${editingStore.id}`, {
+                          method: "PUT",
+                          credentials: "include",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(payload)
+                        })
+
+                      }
+                      if (!createRes.ok) {
+                        const txt = await createRes.text().catch(() => "");
+                        throw new Error(txt || `Store creation failed: HTTP ${createRes.status}`);
+                      }
+
+                      const createdStore = await createRes.json();
+                      const storeSlug = createdStore.slug;
+
+                      if (storeImageFile) {
+                        const bannerFilename = `stores/${storeSlug}/${storeSlug}_banner.png`;
+
+                        const formData = new FormData();
+                        formData.append("file", storeImageFile);
+                        formData.append("filename", bannerFilename);
+
+                        const uploadRes = await fetch("http://localhost:8080/api/photos/upload", {
+                          method: "POST",
+                          body: formData
+                        });
+
+                        if (!uploadRes.ok) {
+                          const txt = await uploadRes.text().catch(() => "");
+                          throw new Error(txt || `Image upload failed: HTTP ${uploadRes.status}`);
+                        }
+                      }
+
+                      setShowCreateModal(false);
+                      setNewName("");
+                      setNewDescription("");
+                      setNewMinOrder(0);
+                      setNewDeliveryTime(0);
+                      setNewOwnerEmail("");
+                      setNewSelectedCategories([]);
+                      setStoreImageFile(null);
+
+                      await loadStores();
+
+                    } catch (err) {
+                      console.error("Create/Edit store error:", err);
+                      setCreateError(err.message || "Operation failed");
+                    } finally {
+                      setCreating(false);
                     }
+                  }}
+                  className={`px-4 py-2 rounded ${confirmDisabled ? 'bg-gray-600 text-gray-300' : 'bg-green-500 text-black font-semibold'}`}>{creating ? (editingStore ? 'Saving...' : 'Creating...') : (editingStore ? 'Save' : 'Confirm')}
 
-                    if (!res.ok) {
-                      const txt = await res.text().catch(() => "");
-                      throw new Error(txt || `HTTP ${res.status}`);
-                    }
-
-                    // success: close and refresh list
-                    setShowCreateModal(false);
-                    setNewName(""); setNewDescription(""); setNewMinOrder(0); setNewDeliveryTime(0); setNewOwnerEmail(""); setNewSelectedCategories([]);
-                    setEditingStore(null);
-                    await loadStores();
-                  } catch (err) {
-                    console.error("Create/Edit store error:", err);
-                    setCreateError(err.message || "Operation failed");
-                  } finally {
-                    setCreating(false);
-                  }
-                }} className={`px-4 py-2 rounded ${confirmDisabled ? 'bg-gray-600 text-gray-300' : 'bg-green-500 text-black font-semibold'}`}>{creating ? (editingStore ? 'Saving...' : 'Creating...') : (editingStore ? 'Save' : 'Confirm')}</button>
+                </button>
               </div>
             </form>
           </div>
