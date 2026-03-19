@@ -25,6 +25,7 @@
     }
   },
   "scripts": {
+    "test:e2e": "playwright test",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
