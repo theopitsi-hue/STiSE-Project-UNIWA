@@ -43,6 +43,7 @@ public class Store {
             joinColumns = @JoinColumn(name = "store_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @JsonIgnore
     private Set<Category> categories= new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
 
 

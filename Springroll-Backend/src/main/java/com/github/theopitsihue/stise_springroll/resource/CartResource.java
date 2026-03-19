@@ -7,7 +7,6 @@ import com.github.theopitsihue.stise_springroll.entity.User;
 import com.github.theopitsihue.stise_springroll.entity.address.UserAddress;
 import com.github.theopitsihue.stise_springroll.entity.cart.Cart;
 import com.github.theopitsihue.stise_springroll.entity.order.Order;
-import com.github.theopitsihue.stise_springroll.entity.order.OrderStatus;
 import com.github.theopitsihue.stise_springroll.request.cart.CartFinalizeRequest;
 import com.github.theopitsihue.stise_springroll.request.cart.CartModificationRequest;
 import com.github.theopitsihue.stise_springroll.request.cart.CartModificationResponse;
@@ -140,8 +139,9 @@ public class CartResource {
                     .body(Map.of("error", "Invalid address."));
         }
 
-        Order order = orderService.createFromCart(cart, addr);
-        orderService.setStatus(order, OrderStatus.PENDING);
+        Order order = orderService.create(
+                Order.createFromCart(cart, addr)
+        );
 
         return ResponseEntity.ok(Map.of("order_id", order.getId()));
     }
