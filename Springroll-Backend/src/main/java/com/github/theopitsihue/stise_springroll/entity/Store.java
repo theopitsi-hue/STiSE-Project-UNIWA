@@ -34,27 +34,30 @@ public class Store {
     @Column(nullable = false)
     private String name;
 
-    private String description;
-
     @Column(nullable = false,unique = true) //human readable url name!!! generate during creation
     private String slug;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "store_category",
             joinColumns = @JoinColumn(name = "store_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private Set<Category> categories = new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
+    private Set<Category> categories= new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Item> items = new ArrayList<>(); // All items for sale in this store
 
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @ManyToMany
+    @JoinTable(
+            name = "store_owners",
+            joinColumns = @JoinColumn(name = "store_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnore
+    private Set<User> owners = new HashSet<>();
 
     @Builder.Default
     private boolean forceClosed = false;
