@@ -243,6 +243,8 @@ const Navbar = () => {
                     )}
                 </div>
 
+
+                {user?.role === 2 && (<span className="text-xl font-semibold">- ADMIN VIEW -</span>)}
                 {/* EXPANDABLE ACTION BUTTON */}
                 <div className="relative ml-2" ref={actionsRef}>
                     <button
@@ -263,12 +265,12 @@ const Navbar = () => {
 
                     {actionsOpen && (
                         <div className="absolute mt-1 flex flex-col gap-1 w-40 bg-gray-800 rounded shadow-lg border-2 border-green-600 z-50">
-                            <button
+                            {/* <button
                                 onClick={() => handleActionClick("Favourites")}
                                 className="text-m font-semibold px-3 py-1 hover:bg-gray-700 rounded text-white"
                             >
                                 Favourites
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => handleActionClick("Orders")}
                                 className="text-m font-semibold px-3 py-1 hover:bg-gray-700 rounded text-white"
