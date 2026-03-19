@@ -279,7 +279,7 @@ const Stores = () => {
 
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-800/80 to-transparent" />
                   <div className="relative z-10 px-2 h-full flex flex-col justify-end">
                     <h3 className="text-lg font-semibold">{store.name}</h3>
                     <p className="text-gray-300 line-clamp-2">

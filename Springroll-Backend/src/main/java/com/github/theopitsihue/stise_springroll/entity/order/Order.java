@@ -77,7 +77,7 @@ public class Order {
         order.totalPrice = cart.getFinalPrice();
         order.setCreatedAt(LocalDateTime.now());
         order.address = address;
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.COMPLETED);
         return order;
     }
 

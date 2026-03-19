@@ -159,7 +159,7 @@ const Login = () => {
           }
 
           <button className="w-full p-3 bg-springGreenMedium text-white rounded-full text-lg font-medium">
-            {isLoginMode ? "Login" : "Sign Up"}
+            {isLoginMode ? "Login!" : "Sign Up!"}
           </button>
 
           <p className="text-center text-white">

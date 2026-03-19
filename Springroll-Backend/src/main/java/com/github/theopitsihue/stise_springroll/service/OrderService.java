@@ -41,6 +41,7 @@ public class OrderService {
 
     public Order create(@NotNull Order entity){
         entity.setCreatedAt(LocalDateTime.now());
+
         return orderRepo.save(entity);
     }
 
