@@ -133,7 +133,7 @@ class DatabasePopulationTest {
         userService.createUser(papa);
 
         for (Store s : stores) {
-            s.setOwners(Set.of(papa));
+            s.setOwner(papa);
             s.setItemGroups(groups);
             storeService.createStore(s);
         }
