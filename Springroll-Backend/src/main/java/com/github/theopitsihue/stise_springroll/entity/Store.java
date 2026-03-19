@@ -34,16 +34,18 @@ public class Store {
     @Column(nullable = false)
     private String name;
 
+    private String description;
+
     @Column(nullable = false,unique = true) //human readable url name!!! generate during creation
     private String slug;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "store_category",
             joinColumns = @JoinColumn(name = "store_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private Set<Category> categories= new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
+    private Set<Category> categories = new HashSet<>(); //categories for types of store (EX pizza, burgers, ect)
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -82,5 +84,10 @@ public class Store {
         }
         minOrder = BigInteger.valueOf(fin);
         this.items.addAll(items);
+    }
+
+    public void setOwner(User user){
+        this.owners.clear();
+        this.owners.add(user);
     }
 }

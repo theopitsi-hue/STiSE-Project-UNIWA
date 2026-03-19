@@ -52,7 +52,7 @@ class StoreServiceTest {
         when(storeRepository.findDistinctByCategories_NameIn(anySet(), any(Pageable.class)))
                 .thenReturn(page);
 
-        Page<Store> result = storeService.getAllStores(categories, 0, 10);
+        Page<Store> result = storeService.getAllStores(0, 10);
 
         assertEquals(page, result);
         verify(storeRepository).findDistinctByCategories_NameIn(anySet(), any(Pageable.class));
