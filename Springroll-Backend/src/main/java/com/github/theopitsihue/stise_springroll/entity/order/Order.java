@@ -57,34 +57,4 @@ public class Order {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-
-
-    public static @NotNull Order createFromCart(Cart cart, UserAddress address) {
-        Order order = Order.builder().user(cart.getUser()).status(OrderStatus.PENDING).store(cart.getStore()).build();
-        cart.getItems().forEach(item ->{
-            OrderItem orderItem = OrderItem.builder()
-                    .order(order)
-                    .item(item.getItem())
-                    .quantity(item.getQuantity())
-                    .priceAtOrder(item.getItem().getPrice())
-                    .itemNameAtOrder(item.getItem().getName())
-                    .build();
-
-            if (order.getItems() == null) order.setItems(new ArrayList<>());
-
-            order.getItems().add(orderItem);
-        });
-        order.totalPrice = cart.getFinalPrice();
-        order.setCreatedAt(LocalDateTime.now());
-        order.address = address;
-        order.setStatus(OrderStatus.PENDING);
-        return order;
-    }
-
-    public void setStatus(OrderStatus status){
-        if (status != this.status){
-            this.status = status;
-            this.lastUpdateStatusAt = LocalDateTime.now();
-        }
-    }
 }
