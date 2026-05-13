@@ -32,14 +32,14 @@ cd ../Springroll-Server
 mvn spring-boot:run
 ```
 
-## Run Client (React)
+### Run Client (React)
 ```
 cd ../Springroll-Client
 npm install
 npm start
 ```
 
-### Additional tools used
+## Additional tools used
 - Project Management: Jira
 - ORM: Hibernate (as part of Springboot)
 - Testing: Junit (as part of Springboot)
@@ -47,5 +47,5 @@ npm start
 - IDE(s): Intellij, VS Code
 - Plugins: Lombok
 
-## Credits
+## Attributions
 Some images used for stores and other visual content in this project are sourced from Pixabay (https://pixabay.com) and are used in accordance with its free license.
