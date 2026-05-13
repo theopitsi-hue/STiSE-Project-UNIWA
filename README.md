@@ -1,7 +1,20 @@
 # STiSE-Project-UNIWA
-A Special Topics in Software Engineering project developed during the winter semester of ICE UNIWA 2025/2026.
+Special Topics in Software Engineering project developed during the winter semester of ICE UNIWA 2025/2026.
 
-The aim of 'SpringRoll', a full-stack web application, is to create an online food delivery application with a range of different kinds of shops and products distributed per area.
+SpringRoll is a modern full-stack food delivery platform designed to emulate the experience and functionality of real-world online ordering applications. The system supports a wide variety of stores and products, allowing users to browse, order, and manage deliveries through an interactive and scalable environment.
+
+The project combines multiple contemporary technologies and architectural components to deliver a complete end-to-end software solution, including:
+
+- Frontend built with React, providing a responsive and user-friendly interface
+- Backend powered by Spring Boot, exposing RESTful APIs and handling business logic, authentication, and data management
+- A fully integrated admin panel for managing shops, products, users, orders, and application content
+- Image hosting and media management capabilities for product previews, store branding, and admin user-uploaded assets
+- Database-driven product categorization
+- Secure user authentication and role-based access control
+- Dynamic order processing and real-time application interaction
+- Modular architecture following full-stack software engineering principles and scalable design practices
+
+SpringRoll was developed as part of the Special Topics in Software Engineering course project to demonstrate practical knowledge in software engineering, full-stack development, UI/UX design, backend architecture, database integration, and modern web technologies.
 
 This is a group project created and developed by: [Θεονύμφη Πιτσίλογλου, Νέβενα Ανδρίτσου, Σταυρούλα Ιωάννα Λεοντζάκου, Αικατερίνη Πλάγου], and uses React for the front-end, Springboot for the backend and MySQL for the database.
 
