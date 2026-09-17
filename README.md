@@ -18,6 +18,17 @@ SpringRoll was developed as part of the Special Topics in Software Engineering c
 
 This is a group project created and developed by: [Θεονύμφη Πιτσίλογλου, Νέβενα Ανδρίτσου, Σταυρούλα Ιωάννα Λεοντζάκου, Αικατερίνη Πλάγου], and uses React for the front-end, Springboot for the backend and MySQL for the database.
 
+## Preview
+### Log In - Register
+<img width="869" height="847" alt="image" src="https://github.com/user-attachments/assets/0b1f4775-9102-4082-9f0a-6ff874345f3b" />
+
+### Shop Search
+<img width="1840" height="809" alt="image" src="https://github.com/user-attachments/assets/a205e83c-93d6-4d2a-892f-dd800a328bc4" />
+
+### Food Browser
+<img width="1851" height="854" alt="image" src="https://github.com/user-attachments/assets/9783ac4d-1bd9-41b4-9e6d-53e885addd38" />
+
+
 ## Setup
 ### Clone the repository:
 Using git on console..
@@ -48,4 +59,4 @@ npm start
 - Plugins: Lombok
 
 ## Attributions
-Some images used for stores and other visual content in this project are sourced from Pixabay (https://pixabay.com) and are used in accordance with its free license.
+Some images used for stores and other visual content in this project are sourced from Pixabay (https://pixabay.com) and are used in accordance with its free license. Some names and pictures are property of real stores and are only used for educational purposes.
